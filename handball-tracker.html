@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Handball Tracker</title>
+<!-- PWA -->
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIkhhbmRiYWxsIFRyYWNrZXIiLCAic2hvcnRfbmFtZSI6ICJIQlQiLCAiZGVzY3JpcHRpb24iOiAiU3BpZWxlcnplaXR2ZXJmb2xndW5nIGbDvHIgZGVuIFNwaWVsdGFnIiwgInN0YXJ0X3VybCI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjExMTciLCAidGhlbWVfY29sb3IiOiAiI2U4MzgyYiIsICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsICJpY29ucyI6IFt7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBMU1USWdOVEV5SWo0S0lDQThjbVZqZENCM2FXUjBhRDBpTlRFeUlpQm9aV2xuYUhROUlqVXhNaUlnY25nOUlqRXdNQ0lnWm1sc2JEMGlJekJtTVRFeE55SXZQZ29nSUR4eVpXTjBJSGRwWkhSb1BTSTFNVElpSUdobGFXZG9kRDBpTlRFeUlpQnllRDBpTVRBd0lpQm1hV3hzUFNJak1XRXhaREkzSWk4K0NpQWdQQ0V0TFNCeVpXUWdZV05qWlc1MElHSmhjaUIwYjNBZ0xTMCtDaUFnUEhKbFkzUWdlRDBpTUNJZ2VUMGlNQ0lnZDJsa2RHZzlJalV4TWlJZ2FHVnBaMmgwUFNJNElpQnllRDBpTkNJZ1ptbHNiRDBpSTJVNE16Z3lZaUl2UGdvZ0lEd2hMUzBnU0ZRZ2JHVjBkR1Z5Y3lBdExUNEtJQ0E4ZEdWNGRDQjRQU0l5TlRZaUlIazlJakk1TUNJZ1ptOXVkQzFtWVcxcGJIazlJa0Z5YVdGc0lFSnNZV05yTENCellXNXpMWE5sY21sbUlpQm1iMjUwTFhkbGFXZG9kRDBpT1RBd0lpQm1iMjUwTFhOcGVtVTlJakl5TUNJZ1ptbHNiRDBpSTJZd1pqSm1aaUlnZEdWNGRDMWhibU5vYjNJOUltMXBaR1JzWlNJZ1pHOXRhVzVoYm5RdFltRnpaV3hwYm1VOUltMXBaR1JzWlNJZ2JHVjBkR1Z5TFhOd1lXTnBibWM5SWkweE1DSStTRlE4TDNSbGVIUStDaUFnUENFdExTQnlaV1FnWkc5MElDMHRQZ29nSUR4amFYSmpiR1VnWTNnOUlqTTVNQ0lnWTNrOUlqRTJNQ0lnY2owaU16WWlJR1pwYkd3OUlpTmxPRE00TW1JaUx6NEtQQzl6ZG1jKyIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9XX0=">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HBT">
+<meta name="theme-color" content="#e8382b">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjEwMCIgZmlsbD0iIzBmMTExNyIvPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAwIiBmaWxsPSIjMWExZDI3Ii8+CiAgPCEtLSByZWQgYWNjZW50IGJhciB0b3AgLS0+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjUxMiIgaGVpZ2h0PSI4IiByeD0iNCIgZmlsbD0iI2U4MzgyYiIvPgogIDwhLS0gSFQgbGV0dGVycyAtLT4KICA8dGV4dCB4PSIyNTYiIHk9IjI5MCIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjIyMCIgZmlsbD0iI2YwZjJmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9Ii0xMCI+SFQ8L3RleHQ+CiAgPCEtLSByZWQgZG90IC0tPgogIDxjaXJjbGUgY3g9IjM5MCIgY3k9IjE2MCIgcj0iMzYiIGZpbGw9IiNlODM4MmIiLz4KPC9zdmc+">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--accent:#e8382b;--accent2:#ff6b35;--green:#22c55e;--blue:#639bff;--text:#f0f2ff;--muted:#6b7099;--border:#2e3350;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+  .screen{display:none;flex-direction:column;min-height:100vh;padding:16px;}
+  .screen.active{display:flex;}
+  .logo{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:2.1rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+  .logo span{color:var(--accent);}
+  .subtitle{color:var(--muted);font-size:.84rem;margin-bottom:20px;}
+  .section-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  /* SETTINGS */
+  .game-settings-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+  .setting-block{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+  .setting-block label{display:block;font-size:.67rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .setting-block input{border:none;background:transparent;padding:0;font-size:1.22rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--text);width:100%;outline:none;}
+  .setting-block .setting-sub{font-size:.69rem;color:var(--muted);margin-top:2px;}
+  /* PLAYER INPUTS */
+  .player-input-row{display:grid;grid-template-columns:44px 1fr 54px 36px 36px;gap:5px;margin-bottom:2px;align-items:center;}
+  .target-preview{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;text-align:right;padding-right:4px;margin-bottom:4px;}
+  .pct-wrap{position:relative;}
+  .pct-wrap input{padding-right:14px!important;}
+  .pct-wrap::after{content:'%';position:absolute;right:7px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.72rem;pointer-events:none;}
+  .player-row-block.inactive .player-input-row input{opacity:.3;}
+  input[type="text"],input[type="number"]{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.88rem;padding:8px 10px;width:100%;outline:none;transition:border-color .2s;}
+  input:focus{border-color:var(--accent);}
+  input::placeholder{color:var(--muted);}
+  /* BUTTONS */
+  .btn-icon{background:var(--surface2);border:none;border-radius:8px;color:var(--muted);cursor:pointer;font-size:1rem;height:38px;width:38px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+  .btn-icon:active{transform:scale(.92);}
+  .btn-icon.danger{color:var(--accent);}
+  .btn-icon.active-toggle{background:rgba(34,197,94,.15);color:var(--green);}
+  .btn-icon.inactive-toggle{background:rgba(107,112,153,.1);color:var(--muted);opacity:.5;}
+  .btn-add{background:var(--surface);border:1px dashed var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:'Barlow',sans-serif;font-size:.88rem;padding:9px;width:100%;margin-top:3px;margin-bottom:10px;transition:all .15s;}
+  .btn-add:active{background:var(--surface2);}
+  .btn-primary{background:var(--accent);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.05rem;letter-spacing:.08em;text-transform:uppercase;padding:13px;width:100%;transition:all .15s;}
+  .btn-primary:active{transform:scale(.97);background:#c02a1f;}
+  .setup-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;}
+  .btn-secondary{background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;letter-spacing:.05em;text-transform:uppercase;padding:11px 8px;width:100%;transition:all .15s;}
+  .btn-secondary:active{background:var(--surface);}
+  .btn-secondary.green{border-color:rgba(34,197,94,.4);color:var(--green);}
+  .btn-secondary.danger-btn{border-color:rgba(232,56,43,.35);color:var(--accent);}
+  .btn-secondary.blue{border-color:rgba(99,155,255,.4);color:var(--blue);}
+  /* GAME HEADER */
+  .game-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;}
+  .game-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.92rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .game-meta-line{font-size:.71rem;color:var(--muted);margin-top:2px;}
+  .game-header-btns{display:flex;gap:5px;}
+  /* GAME META INPUTS */
+  .game-meta-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px;}
+  .game-meta-input-block{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:7px 10px;}
+  .game-meta-input-block label{display:block;font-size:.64rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+  .game-meta-input-block input{border:none;background:transparent;padding:0;font-size:.95rem;font-family:'Barlow',sans-serif;font-weight:600;color:var(--text);width:100%;outline:none;}
+  /* CLOCK */
+  .clock-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:11px 16px;text-align:center;margin-bottom:9px;position:relative;overflow:hidden;}
+  .clock-block.running::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));animation:pulse-bar 1s ease-in-out infinite alternate;}
+  .clock-block.halftime::before{background:linear-gradient(90deg,var(--blue),#8bb4ff);}
+  @keyframes pulse-bar{from{opacity:.4;}to{opacity:1;}}
+  .clock-display{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:3.2rem;letter-spacing:.04em;line-height:1;color:var(--text);margin-bottom:8px;}
+  .clock-display.paused{color:var(--muted);}
+  .clock-phase{font-size:.68rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+  .clock-controls{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+  .btn-clock{border:none;border-radius:10px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.96rem;letter-spacing:.08em;text-transform:uppercase;padding:10px;transition:all .15s;}
+  .btn-clock:active{transform:scale(.96);}
+  .btn-start{background:var(--green);color:#fff;}
+  .btn-stop{background:var(--accent);color:#fff;}
+  /* HINT */
+  .hint-bar{background:rgba(232,56,43,.1);border:1px solid rgba(232,56,43,.3);border-radius:9px;color:var(--accent2);font-size:.82rem;font-weight:500;padding:8px 14px;margin-bottom:9px;text-align:center;display:none;}
+  .hint-bar.visible{display:block;}
+  /* COMBINED GRID */
+  .combined-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px;}
+  .combined-col{display:flex;flex-direction:column;gap:6px;}
+  .col-header{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.69rem;letter-spacing:.15em;text-transform:uppercase;padding:2px;display:flex;align-items:center;gap:5px;}
+  .badge{background:var(--surface2);border-radius:20px;font-size:.69rem;font-weight:600;padding:2px 7px;color:var(--muted);}
+  .badge.active-badge{background:rgba(34,197,94,.15);color:var(--green);}
+  /* PLAYER CARDS */
+  .player-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;padding:9px 11px 8px;transition:all .15s;position:relative;user-select:none;}
+  .player-card:active{transform:scale(.95);}
+  .player-card.on-field{background:rgba(34,197,94,.07);border-color:var(--green);}
+  .player-card.selecting-out{animation:pulse-card .6s ease-in-out infinite alternate;}
+  @keyframes pulse-card{from{border-color:var(--border);}to{border-color:var(--accent2);}}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;}
+  .player-number{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.6rem;line-height:1;color:var(--accent);}
+  .player-card.on-field .player-number{color:var(--green);}
+  .player-name-card{font-size:.86rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+  .player-time{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.45rem;color:var(--muted);line-height:1;letter-spacing:.02em;}
+  .player-card.on-field .player-time{color:var(--green);}
+  .time-soll{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:700;color:var(--muted);margin-left:4px;}
+  /* Status pill */
+  .status-pill{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 8px 3px 5px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.04em;margin-top:4px;cursor:pointer;}
+  .status-pill.pill-green{background:rgba(34,197,94,.15);color:var(--green);}
+  .status-pill.pill-blue{background:rgba(99,155,255,.15);color:var(--blue);}
+  .status-pill.pill-yellow{background:rgba(255,183,0,.15);color:#ffb700;}
+  .status-pill.pill-red{background:rgba(232,56,43,.15);color:var(--accent);}
+  .pill-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .pill-green .pill-dot{background:var(--green);}
+  .pill-blue  .pill-dot{background:var(--blue);}
+  .pill-yellow .pill-dot{background:#ffb700;}
+  .pill-red  .pill-dot{background:var(--accent);}
+  .status-dot{position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--green);}
+  /* RESULTS */
+  .results-list{flex:1;overflow-y:auto;}
+  .result-row{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .result-row:last-child{border-bottom:none;}
+  .result-number{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;color:var(--accent);text-align:center;}
+  .result-name{font-weight:600;font-size:.92rem;}
+  .result-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+  .result-time{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.18rem;text-align:right;}
+  .result-bar-wrap{grid-column:1/-1;margin-top:-3px;margin-bottom:2px;}
+  .result-bar-bg{background:var(--surface2);border-radius:4px;height:4px;}
+  .result-bar-fill{background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;height:4px;}
+  /* HISTORY */
+  .history-item{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 13px;margin-bottom:9px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;}
+  .history-item:active{background:var(--surface2);}
+  .history-item-body{flex:1;min-width:0;}
+  .history-delete{background:rgba(232,56,43,.12);border:none;border-radius:8px;color:var(--accent);cursor:pointer;font-size:.85rem;padding:7px 9px;flex-shrink:0;transition:all .15s;}
+  .history-delete:active{background:rgba(232,56,43,.25);}
+  .history-item-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px;}
+  .history-opponent{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.02rem;}
+  .history-date{font-size:.73rem;color:var(--muted);}
+  .history-meta{font-size:.76rem;color:var(--muted);}
+  /* OVERLAY */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;flex-direction:column;}
+  .overlay.visible{display:flex;}
+  .overlay-inner{background:var(--surface);flex:1;overflow-y:auto;padding:16px;margin-top:auto;border-radius:16px 16px 0 0;max-height:90vh;}
+  .overlay-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;margin-bottom:4px;}
+  .overlay-sub{font-size:.78rem;color:var(--muted);margin-bottom:14px;}
+  /* CONFIRM */
+  .confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;align-items:flex-end;justify-content:center;padding:20px;}
+  .confirm-overlay.visible{display:flex;}
+  .confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;width:100%;max-width:420px;}
+  .confirm-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.25rem;margin-bottom:7px;}
+  .confirm-text{color:var(--muted);font-size:.88rem;margin-bottom:16px;line-height:1.5;}
+  .confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .confirm-cancel{background:var(--surface2);border:none;border-radius:10px;color:var(--text);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.98rem;padding:12px;}
+  .confirm-ok{background:var(--accent);border:none;border-radius:10px;color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.98rem;padding:12px;}
+  .confirm-ok:active{background:#c02a1f;}
+  /* HALFTIME BANNER */
+  .halftime-banner{display:none;background:rgba(99,155,255,.12);border:1px solid rgba(99,155,255,.4);border-radius:10px;color:var(--blue);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.92rem;letter-spacing:.08em;text-transform:uppercase;padding:9px 14px;margin-bottom:9px;text-align:center;}
+  .halftime-banner.visible{display:block;}
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.93rem;padding:9px 20px;border-radius:30px;z-index:2000;transition:transform .3s ease;white-space:nowrap;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .spacer{flex:1;}
+  .back-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:'Barlow',sans-serif;font-size:.87rem;padding:9px 16px;margin-top:11px;transition:all .15s;}
+  .back-btn:active{background:var(--surface);}
+</style>
+</head>
+<body>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-text" id="confirm-text"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" id="confirm-cancel">Abbrechen</button>
+      <button class="confirm-ok" id="confirm-ok">Ja, sicher</button>
+    </div>
+  </div>
+</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HISTORY DETAIL OVERLAY -->
+<div class="overlay" id="overlay-history-detail">
+  <div class="overlay-inner">
+    <div class="overlay-title" id="hd-title"></div>
+    <div class="overlay-sub" id="hd-sub"></div>
+    <div id="hd-players"></div>
+    <button class="back-btn" style="width:100%;margin-top:14px;" onclick="document.getElementById('overlay-history-detail').classList.remove('visible')">← Zurück zur Liste</button>
+  </div>
+</div>
+
+<!-- ===================== SETUP SCREEN ===================== -->
+<div class="screen active" id="screen-setup">
+  <div class="logo">Hand<span>ball</span> Tracker</div>
+  <div class="subtitle">Spielerzeitverfolgung für den Spieltag</div>
+
+  <div class="section-label">Spieleinstellungen</div>
+  <div class="game-settings-row">
+    <div class="setting-block">
+      <label>Spieldauer</label>
+      <input type="number" id="game-duration" value="40" min="1" max="120">
+      <div class="setting-sub">Minuten (Halbzeit)</div>
+    </div>
+    <div class="setting-block">
+      <label>Spieler auf Feld</label>
+      <input type="number" id="field-size" value="7" min="1" max="11">
+      <div class="setting-sub" id="base-target-display">Basis-Soll: – min</div>
+    </div>
+  </div>
+
+  <div class="section-label">Spieler &amp; Anpassung</div>
+  <div style="display:grid;grid-template-columns:44px 1fr 54px 36px 36px;gap:5px;margin-bottom:5px;">
+    <div style="font-size:.59rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">#</div>
+    <div style="font-size:.59rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">Name</div>
+    <div style="font-size:.59rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">+/-%</div>
+    <div style="font-size:.59rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;text-align:center;">An</div>
+    <div></div>
+  </div>
+  <div id="player-list"></div>
+  <button class="btn-add" id="btn-add-player">+ Spieler hinzufügen</button>
+
+  <div class="spacer"></div>
+  <div class="setup-actions">
+    <button class="btn-secondary green" id="btn-save-setup">💾 Speichern</button>
+    <button class="btn-secondary danger-btn" id="btn-reset-times">↺ Zeiten reset</button>
+  </div>
+  <div class="setup-actions" style="margin-top:8px;">
+    <button class="btn-secondary blue" id="btn-resume-game" style="display:none;">▶ Spiel fortsetzen</button>
+    <button class="btn-secondary blue" id="btn-open-history">📋 Spielarchiv</button>
+  </div>
+  <button class="btn-primary" id="btn-start-game" style="margin-top:8px;">▶ Neues Spiel starten</button>
+</div>
+
+<!-- ===================== GAME SCREEN ===================== -->
+<div class="screen" id="screen-game">
+  <div class="game-header">
+    <div>
+      <div class="game-title">Spielzeit-Tracker</div>
+      <div class="game-meta-line" id="game-meta-display">–</div>
+    </div>
+    <div class="game-header-btns">
+      <button class="btn-icon" id="btn-save-game" title="Speichern">💾</button>
+      <button class="btn-icon" id="btn-to-results" title="Auswertung">📊</button>
+      <button class="btn-icon" id="btn-game-to-setup" title="Zur Übersicht">⬅</button>
+    </div>
+  </div>
+
+  <!-- Gegner & Datum Eingabe direkt im Spiel -->
+  <div class="game-meta-inputs">
+    <div class="game-meta-input-block">
+      <label>Gegner</label>
+      <input type="text" id="game-opponent" placeholder="z.B. TSV Muster">
+    </div>
+    <div class="game-meta-input-block">
+      <label>Datum</label>
+      <input type="date" id="game-date">
+    </div>
+  </div>
+
+  <div class="clock-block" id="clock-block">
+    <div class="clock-phase" id="clock-phase">1. HALBZEIT</div>
+    <div class="clock-display" id="clock-display">00:00</div>
+    <div class="clock-controls">
+      <button class="btn-clock btn-start" id="btn-clock-start">▶ Start</button>
+      <button class="btn-clock btn-stop" id="btn-clock-stop">⏸ Pause</button>
+    </div>
+  </div>
+
+  <div class="halftime-banner" id="halftime-banner">⏸ Halbzeit – Uhr anhalten</div>
+  <div class="hint-bar" id="hint-bar"></div>
+
+  <div class="combined-grid">
+    <div class="combined-col">
+      <div class="col-header" style="color:var(--green);">🟢 Feld <span class="badge active-badge" id="field-count">0</span></div>
+      <div id="field-players"></div>
+    </div>
+    <div class="combined-col">
+      <div class="col-header" style="color:var(--muted);">🪑 Bank <span class="badge" id="bench-count">0</span></div>
+      <div id="bench-players"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== RESULTS SCREEN ===================== -->
+<div class="screen" id="screen-results">
+  <div class="logo" style="margin-bottom:4px;">Auswer<span>tung</span></div>
+  <div class="subtitle" id="results-subtitle"></div>
+  <div class="results-list" id="results-list"></div>
+  <button class="back-btn" id="btn-back-to-game">← Zurück zum Spiel</button>
+  <button class="btn-primary" style="margin-top:8px;" id="btn-results-to-setup">⬅ Zur Übersicht</button>
+</div>
+
+<!-- ===================== HISTORY SCREEN ===================== -->
+<div class="screen" id="screen-history">
+  <div class="logo" style="margin-bottom:4px;">Spiel<span>archiv</span></div>
+  <div class="subtitle">Historische Spiele</div>
+  <div style="flex:1;overflow-y:auto;" id="history-list"></div>
+  <button class="back-btn" id="btn-history-back">← Zurück</button>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const APP_VERSION = '3.0';
+let players = [];
+let gameDurationMin = 40; // per half
+let fieldSize = 7;
+let gameState = {
+  running: false, gameMs: 0, lastStart: null,
+  playerData: {}, swapStep: null, _outId: null, _inId: null,
+  half: 1, // 1 = first half, 2 = second half, 3 = done
+  halfShownAlert: false, // prevent duplicate alerts
+};
+let clockInterval = null;
+let autoSaveInterval = null;
+
+const defaultPlayers = [
+  {number:'1',name:'Max M.'},{number:'5',name:'Jonas K.'},{number:'7',name:'Tim S.'},
+  {number:'9',name:'Leon B.'},{number:'11',name:'Finn W.'},{number:'13',name:'Luca H.'},
+  {number:'17',name:'Paul R.'},{number:'21',name:'Ben T.'},{number:'23',name:'Nico D.'},
+];
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showConfirm(title, text, onOk, okLabel) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-text').textContent = text;
+  document.getElementById('confirm-ok').textContent = okLabel || 'Ja, sicher';
+  document.getElementById('confirm-overlay').classList.add('visible');
+  const cleanup = () => document.getElementById('confirm-overlay').classList.remove('visible');
+  document.getElementById('confirm-ok').onclick = () => { cleanup(); onOk(); };
+  document.getElementById('confirm-cancel').onclick = cleanup;
+}
+
+let toastTimer = null;
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = color || 'var(--green)';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function formatMs(ms) {
+  const s = Math.floor(Math.max(0,ms)/1000);
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+// ============================================================
+// LOCAL STORAGE
+// ============================================================
+function saveSetup() {
+  try {
+    localStorage.setItem('hbt_v', APP_VERSION);
+    localStorage.setItem('hbt_players', JSON.stringify(players));
+    localStorage.setItem('hbt_duration', gameDurationMin);
+    localStorage.setItem('hbt_fieldsize', fieldSize);
+    showToast('✓ Gespeichert');
+  } catch(e) { showToast('⚠ Speichern fehlgeschlagen','var(--accent)'); }
+}
+
+function saveGameState(silent) {
+  try {
+    const now = Date.now();
+    const snap = {
+      running: false, lastStart: null, swapStep: null, _outId: null, _inId: null,
+      gameMs: gameState.running ? gameState.gameMs+(now-gameState.lastStart) : gameState.gameMs,
+      half: gameState.half, halfShownAlert: gameState.halfShownAlert,
+      playerData: {}
+    };
+    players.forEach(p => {
+      const pd = gameState.playerData[p.id];
+      if (!pd) return;
+      const fMs = pd.onField && pd.lastFieldStart && gameState.running ? pd.fieldMs+(now-pd.lastFieldStart) : pd.fieldMs;
+      snap.playerData[p.id] = {...pd, fieldMs: fMs, lastFieldStart: null};
+    });
+    const opponent = (document.getElementById('game-opponent')?.value || '').trim();
+    const date     = (document.getElementById('game-date')?.value     || '').trim();
+    localStorage.setItem('hbt_gamestate', JSON.stringify(snap));
+    localStorage.setItem('hbt_players_game', JSON.stringify(players));
+    localStorage.setItem('hbt_duration_game', gameDurationMin);
+    localStorage.setItem('hbt_fieldsize_game', fieldSize);
+    localStorage.setItem('hbt_active_game', '1');
+    localStorage.setItem('hbt_opponent', opponent);
+    localStorage.setItem('hbt_date', date);
+    localStorage.setItem('hbt_v', APP_VERSION);
+    if (!silent) showToast('✓ Spiel gespeichert');
+  } catch(e) { if (!silent) showToast('⚠ Fehler beim Speichern','var(--accent)'); }
+}
+
+function clearSavedGame() {
+  ['hbt_gamestate','hbt_players_game','hbt_duration_game','hbt_fieldsize_game','hbt_active_game','hbt_opponent','hbt_date']
+    .forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+}
+
+function loadSavedSetup() {
+  try {
+    const saved = localStorage.getItem('hbt_players');
+    if (!saved) return false;
+    players = JSON.parse(saved).map(p => ({ active: true, pctAdjust: 0, ...p }));
+    gameDurationMin = parseFloat(localStorage.getItem('hbt_duration')) || 40;
+    fieldSize = parseFloat(localStorage.getItem('hbt_fieldsize')) || 7;
+    return true;
+  } catch(e) { return false; }
+}
+
+function hasSavedGame() { return localStorage.getItem('hbt_active_game') === '1'; }
+
+function restoreSavedGame() {
+  try {
+    players = JSON.parse(localStorage.getItem('hbt_players_game')).map(p => ({ active: true, pctAdjust: 0, ...p }));
+    gameDurationMin = parseFloat(localStorage.getItem('hbt_duration_game')) || 40;
+    fieldSize = parseFloat(localStorage.getItem('hbt_fieldsize_game')) || 7;
+    gameState = JSON.parse(localStorage.getItem('hbt_gamestate'));
+    gameState.swapStep = null; gameState._outId = null; gameState._inId = null;
+    if (!gameState.half) gameState.half = 1;
+    if (!gameState.halfShownAlert) gameState.halfShownAlert = false;
+    players.forEach(p => {
+      if (!gameState.playerData[p.id])
+        gameState.playerData[p.id] = { fieldMs: 0, lastFieldStart: null, onField: false, stints: 0 };
+    });
+    return true;
+  } catch(e) { return false; }
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem('hbt_history') || '[]'); } catch(e) { return []; }
+}
+
+function saveToHistory(gameEntry) {
+  try {
+    const hist = loadHistory();
+    hist.unshift(gameEntry);
+    if (hist.length > 50) hist.splice(50);
+    localStorage.setItem('hbt_history', JSON.stringify(hist));
+  } catch(e) {}
+}
+
+// ============================================================
+// TARGET TIME
+// ============================================================
+function getActivePlayers() { return players.filter(p => p.active !== false); }
+
+function getBaseSollMin() {
+  const dur = parseFloat(document.getElementById('game-duration')?.value) || gameDurationMin;
+  const fs  = parseFloat(document.getElementById('field-size')?.value)    || fieldSize;
+  const a   = getActivePlayers().filter(p => p.name.trim() || p.number.toString().trim());
+  return (dur * 2 * fs) / Math.max(a.length, 1);
+}
+
+function calcTargetMs(player, forSetup) {
+  const dur  = forSetup ? (parseFloat(document.getElementById('game-duration')?.value) || 40) : gameDurationMin;
+  const fs   = forSetup ? (parseFloat(document.getElementById('field-size')?.value)    || 7)  : fieldSize;
+  const pool = forSetup
+    ? getActivePlayers().filter(p => p.name.trim() || p.number.toString().trim())
+    : getActivePlayers();
+  if (!pool.length) return 0;
+  const sumW = pool.reduce((s, p) => s + Math.max(0, 1 + (p.pctAdjust || 0) / 100), 0);
+  const w    = Math.max(0, 1 + (player.pctAdjust || 0) / 100);
+  // Total game = dur * 2 halves
+  return sumW > 0 ? (w / sumW) * dur * 2 * fs * 60000 : 0;
+}
+
+// Prognosis: 
+//   On field  → current + all remaining time (if never swapped out)
+//   On bench  → current + all remaining time (MAXIMUM possible if swapped in right now)
+function getPrognosisMs(p) {
+  const pd = gameState.playerData[p.id];
+  if (!pd) return 0;
+  const curMs      = getPlayerMs(p.id);
+  const totalGameMs = gameDurationMin * 2 * 60 * 1000;
+  const remainingMs = Math.max(0, totalGameMs - getGameMs());
+  // Both field and bench: max they can reach = current + remaining
+  return curMs + remainingMs;
+}
+
+// Status signal for a player based on prognosis vs target
+// Returns: 'blue' (over target), 'green' (on track), 'yellow' (at risk), 'red' (will miss)
+function getStatusSignal(p) {
+  const tgt  = calcTargetMs(p);
+  const cur  = getPlayerMs(p.id);
+  const prog = getPrognosisMs(p);
+  if (tgt <= 0) return 'green';
+  if (cur >= tgt)              return 'blue';   // already over target
+  if (prog < tgt)              return 'red';    // target no longer reachable
+  if (prog < tgt * 1.1)       return 'yellow'; // reachable but <10% buffer above target
+  return 'green';                               // comfortable buffer
+}
+
+const SIGNAL_LABELS = {
+  blue:   '↑ Über Soll',
+  green:  '✓ On Track',
+  yellow: '⚠ Aufholen',
+  red:    '✕ Zu wenig',
+};
+
+// ============================================================
+// SETUP SCREEN
+// ============================================================
+function initSetup() {
+  if (!loadSavedSetup()) {
+    players = defaultPlayers.map((p,i) => ({ id: i, number: p.number, name: p.name, pctAdjust: 0, active: true }));
+  }
+  const durEl = document.getElementById('game-duration');
+  const fsEl  = document.getElementById('field-size');
+  if (durEl) durEl.value = gameDurationMin;
+  if (fsEl)  fsEl.value  = fieldSize;
+  document.getElementById('player-list').innerHTML = '';
+  buildPlayerInputs();
+  setTimeout(refreshTargetPreviews, 50);
+  // Show/hide resume button
+  document.getElementById('btn-resume-game').style.display = hasSavedGame() ? '' : 'none';
+}
+
+function buildPlayerInputs() {
+  const list = document.getElementById('player-list');
+  list.innerHTML = '';
+  players.forEach(p => appendPlayerRow(p, list));
+  attachListListeners();
+}
+
+function appendPlayerRow(p, list) {
+  const tMin = (calcTargetMs(p, true) / 60000).toFixed(1);
+  const pct  = p.pctAdjust || 0;
+  const pctColor = pct > 0 ? 'var(--green)' : pct < 0 ? 'var(--accent)' : 'var(--muted)';
+  const isActive = p.active !== false;
+  const w = document.createElement('div');
+  w.className = 'player-row-block' + (isActive ? '' : ' inactive');
+  w.dataset.pid = p.id;
+  w.innerHTML = `
+    <div class="player-input-row">
+      <input type="number" placeholder="#" value="${p.number}" min="1" max="99" data-field="number" data-pid="${p.id}">
+      <input type="text" placeholder="Name" value="${p.name}" data-field="name" data-pid="${p.id}">
+      <div class="pct-wrap">
+        <input type="number" placeholder="0" value="${pct}" min="-90" max="200" step="5"
+          data-field="pctAdjust" data-pid="${p.id}" style="font-size:.8rem;padding:8px 14px 8px 8px;">
+      </div>
+      <button class="btn-icon ${isActive?'active-toggle':'inactive-toggle'}" data-toggle="${p.id}" style="font-size:.82rem;">${isActive?'✓':'✗'}</button>
+      <button class="btn-icon danger" data-remove="${p.id}" style="font-size:.8rem;">✕</button>
+    </div>
+    <div class="target-preview" data-id="${p.id}" style="color:${isActive?pctColor:'var(--muted)'};padding-right:80px;margin-bottom:4px;">
+      ${isActive ? 'Soll: '+tMin+' min (Vollspiel)' : 'Inaktiv – kein Tracking'}
+    </div>`;
+  list.appendChild(w);
+}
+
+function attachListListeners() {
+  const list = document.getElementById('player-list');
+  list.querySelectorAll('input[data-field]').forEach(inp => {
+    inp.addEventListener('input', function() {
+      const pid = parseInt(this.dataset.pid);
+      const p = players.find(x => x.id === pid);
+      if (p) {
+        const field = this.dataset.field;
+        p[field] = field === 'pctAdjust' ? (parseFloat(this.value)||0) : this.value;
+        refreshTargetPreviews();
+        scheduleDebouncedSave();
+      }
+    });
+  });
+  list.querySelectorAll('button[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const pid = parseInt(this.dataset.toggle);
+      const p = players.find(x => x.id === pid);
+      if (!p) return;
+      p.active = p.active === false;
+      const old = list.querySelector(`.player-row-block[data-pid="${pid}"]`);
+      const tmp = document.createElement('div');
+      appendPlayerRow(p, tmp);
+      list.insertBefore(tmp.firstChild, old.nextSibling);
+      old.remove();
+      attachListListeners();
+      refreshTargetPreviews();
+      scheduleDebouncedSave();
+    });
+  });
+  list.querySelectorAll('button[data-remove]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      players = players.filter(x => x.id !== parseInt(this.dataset.remove));
+      buildPlayerInputs();
+      refreshTargetPreviews();
+      scheduleDebouncedSave();
+    });
+  });
+}
+
+function refreshTargetPreviews() {
+  const list = document.getElementById('player-list');
+  if (!list) return;
+  const base = getBaseSollMin();
+  const bEl  = document.getElementById('base-target-display');
+  if (bEl) bEl.textContent = 'Basis-Soll: '+base.toFixed(1)+' min';
+  players.forEach(p => {
+    const pr = list.querySelector(`.target-preview[data-id="${p.id}"]`);
+    if (!pr) return;
+    if (p.active === false) { pr.textContent = 'Inaktiv – kein Tracking'; pr.style.color = 'var(--muted)'; return; }
+    const tMin = (calcTargetMs(p, true)/60000).toFixed(1);
+    const pct  = p.pctAdjust || 0;
+    pr.textContent = 'Soll: '+tMin+' min (Vollspiel)';
+    pr.style.color = pct > 0 ? 'var(--green)' : pct < 0 ? 'var(--accent)' : 'var(--muted)';
+  });
+}
+
+let saveDT = null;
+function scheduleDebouncedSave() {
+  clearTimeout(saveDT);
+  saveDT = setTimeout(() => {
+    try {
+      const d = parseFloat(document.getElementById('game-duration')?.value); if (!isNaN(d)) gameDurationMin = d;
+      const f = parseFloat(document.getElementById('field-size')?.value);    if (!isNaN(f)) fieldSize = f;
+      localStorage.setItem('hbt_v', APP_VERSION);
+      localStorage.setItem('hbt_players', JSON.stringify(players));
+      localStorage.setItem('hbt_duration', gameDurationMin);
+      localStorage.setItem('hbt_fieldsize', fieldSize);
+    } catch(e) {}
+  }, 1500);
+}
+
+['game-duration','field-size'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => { refreshTargetPreviews(); scheduleDebouncedSave(); });
+});
+
+// ============================================================
+// SETUP BUTTONS
+// ============================================================
+document.getElementById('btn-save-setup').onclick = () => {
+  const d = parseFloat(document.getElementById('game-duration').value); if (!isNaN(d)) gameDurationMin = d;
+  const f = parseFloat(document.getElementById('field-size').value);    if (!isNaN(f)) fieldSize = f;
+  saveSetup();
+};
+
+document.getElementById('btn-reset-times').onclick = () => {
+  showConfirm('Zeiten zurücksetzen?',
+    'Alle Spielzeiten werden auf 0:00 zurückgesetzt. Spieler, Einstellungen und Sollzeiten bleiben erhalten.',
+    () => {
+      gameState = { running:false, gameMs:0, lastStart:null, playerData:{}, swapStep:null, _outId:null, _inId:null, half:1, halfShownAlert:false };
+      clearSavedGame();
+      showToast('✓ Zeiten zurückgesetzt');
+    }
+  );
+};
+
+document.getElementById('btn-add-player').onclick = () => {
+  const maxId = players.length ? Math.max(...players.map(p=>p.id))+1 : 0;
+  players.push({ id: maxId, number:'', name:'', pctAdjust:0, active:true });
+  buildPlayerInputs(); refreshTargetPreviews();
+  setTimeout(() => {
+    const rows = document.querySelectorAll('.player-row-block');
+    rows[rows.length-1]?.querySelector('input[data-field="number"]')?.focus();
+  }, 30);
+};
+
+document.getElementById('btn-start-game').onclick = () => {
+  players = players.filter(p => p.name.trim() || p.number.toString().trim());
+  if (getActivePlayers().length < 2) { showToast('⚠ Mind. 2 aktive Spieler nötig','var(--accent)'); return; }
+  const d = parseFloat(document.getElementById('game-duration').value); if (!isNaN(d)) gameDurationMin = d;
+  const f = parseFloat(document.getElementById('field-size').value);    if (!isNaN(f)) fieldSize = f;
+  saveSetup();
+  // fresh game state
+  gameState = { running:false, gameMs:0, lastStart:null, playerData:{}, swapStep:null, _outId:null, _inId:null, half:1, halfShownAlert:false };
+  players.forEach(p => { gameState.playerData[p.id] = { fieldMs:0, lastFieldStart:null, onField:false, stints:0 }; });
+  getActivePlayers().slice(0, fieldSize).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
+  document.getElementById('game-opponent').value = '';
+  document.getElementById('game-date').value = today();
+  enterGameScreen();
+};
+
+document.getElementById('btn-resume-game').onclick = () => {
+  if (restoreSavedGame()) {
+    const opp  = localStorage.getItem('hbt_opponent') || '';
+    const date = localStorage.getItem('hbt_date')     || today();
+    document.getElementById('game-opponent').value = opp;
+    document.getElementById('game-date').value     = date;
+    enterGameScreen();
+  }
+};
+
+document.getElementById('btn-open-history').onclick = showHistory;
+
+// ============================================================
+// ENTER GAME SCREEN (single function, fixes the back bug)
+// ============================================================
+function enterGameScreen() {
+  showScreen('screen-game');
+  renderGame();
+  clearInterval(autoSaveInterval);
+  autoSaveInterval = setInterval(() => saveGameState(true), 5000);
+  updateClockPhaseLabel();
+  syncMetaDisplay();
+}
+
+function syncMetaDisplay() {
+  const opp  = document.getElementById('game-opponent')?.value || '–';
+  const date = document.getElementById('game-date')?.value;
+  const dateStr = date ? new Date(date+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+  document.getElementById('game-meta-display').textContent = opp + ' · ' + dateStr;
+}
+
+['game-opponent','game-date'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', syncMetaDisplay);
+});
+
+// ============================================================
+// CLOCK
+// ============================================================
+function getGameMs() {
+  return gameState.running ? gameState.gameMs + (Date.now()-gameState.lastStart) : gameState.gameMs;
+}
+function getPlayerMs(id) {
+  const pd = gameState.playerData[id];
+  if (!pd) return 0;
+  return pd.onField && gameState.running ? pd.fieldMs+(Date.now()-(pd.lastFieldStart||gameState.lastStart)) : pd.fieldMs;
+}
+
+function updateClockPhaseLabel() {
+  const phases = ['1. HALBZEIT','2. HALBZEIT','ABPFIFF'];
+  const el = document.getElementById('clock-phase');
+  if (el) el.textContent = phases[(gameState.half||1)-1] || 'ABPFIFF';
+}
+
+// Check automatic half/game-end triggers
+function checkTimeTriggers() {
+  const elapsed = getGameMs();
+  const halfMs  = gameDurationMin * 60 * 1000;
+  const fullMs  = halfMs * 2;
+
+  if (gameState.half === 1 && elapsed >= halfMs && !gameState.halfShownAlert) {
+    gameState.halfShownAlert = true;
+    // Auto-pause at halftime
+    triggerPause();
+    gameState.half = 2;
+    updateClockPhaseLabel();
+    document.getElementById('halftime-banner').classList.add('visible');
+    showToast('⏸ Halbzeit!','var(--blue)');
+  } else if (gameState.half === 2 && elapsed >= fullMs) {
+    // Auto-stop at full time
+    triggerPause();
+    gameState.half = 3;
+    updateClockPhaseLabel();
+    document.getElementById('halftime-banner').classList.remove('visible');
+    showToast('🔔 Abpfiff!','var(--accent)');
+    // Save to history
+    archiveCurrentGame();
+    saveGameState(true);
+    // Show results after short delay
+    setTimeout(() => showResults(), 1200);
+  }
+}
+
+function triggerPause() {
+  if (!gameState.running) return;
+  const now = Date.now();
+  gameState.gameMs += now - gameState.lastStart; gameState.running = false;
+  players.forEach(p => {
+    const pd = gameState.playerData[p.id];
+    if (pd?.onField && pd.lastFieldStart) { pd.fieldMs += now-pd.lastFieldStart; pd.lastFieldStart = null; }
+  });
+  clearInterval(clockInterval);
+  document.getElementById('clock-block').classList.remove('running');
+  renderGame();
+}
+
+function archiveCurrentGame() {
+  const active = getActivePlayers();
+  const playerSnap = active.map(p => ({
+    id: p.id, number: p.number, name: p.name, pctAdjust: p.pctAdjust,
+    ms: getPlayerMs(p.id), stints: gameState.playerData[p.id]?.stints||0,
+    target: calcTargetMs(p)
+  }));
+  // Read opponent/date from DOM first, then localStorage fallback
+  const oppEl  = document.getElementById('game-opponent');
+  const dateEl = document.getElementById('game-date');
+  const opp  = (oppEl?.value?.trim())  || localStorage.getItem('hbt_opponent') || '';
+  const date = (dateEl?.value?.trim()) || localStorage.getItem('hbt_date')     || today();
+  saveToHistory({
+    opponent: opp,
+    date:     date,
+    savedAt:  Date.now(),
+    totalMs:  getGameMs(),
+    durationMin: gameDurationMin,
+    players:  playerSnap,
+  });
+}
+
+document.getElementById('btn-clock-start').onclick = () => {
+  if (gameState.running || gameState.half >= 3) return;
+  if (gameState.half === 2) document.getElementById('halftime-banner').classList.remove('visible');
+  const now = Date.now();
+  gameState.running = true; gameState.lastStart = now;
+  players.forEach(p => { const pd=gameState.playerData[p.id]; if (pd?.onField && !pd.lastFieldStart) pd.lastFieldStart=now; });
+  document.getElementById('clock-block').classList.add('running');
+  clockInterval = setInterval(tickClock, 500);
+  renderGame();
+};
+
+document.getElementById('btn-clock-stop').onclick = () => {
+  triggerPause();
+};
+
+let tickCount = 0;
+function tickClock() {
+  tickCount++;
+  document.getElementById('clock-display').textContent = formatMs(getGameMs());
+  players.forEach(p => {
+    const timeEl = document.querySelector(`.player-time[data-id="${p.id}"]`);
+    if (timeEl) timeEl.textContent = formatMs(getPlayerMs(p.id));
+    const pd = gameState.playerData[p.id];
+    const onField = pd?.onField || false;
+    const progEl = document.querySelector(`.player-prognosis[data-id="${p.id}"]`);
+    if (progEl) progEl.textContent = onField ? `⟶ ${formatMs(getPrognosisMs(p))}` : `max. ${formatMs(getPrognosisMs(p))}`;
+    // update pill
+    const pill = document.querySelector(`.status-pill[data-id="${p.id}"]`);
+    if (pill) {
+      const sig = getStatusSignal(p);
+      pill.className = `status-pill pill-${sig}`;
+      pill.innerHTML = `<span class="pill-dot"></span>${SIGNAL_LABELS[sig]}`;
+    }
+  });
+  checkTimeTriggers();
+  if (tickCount % 4 === 0) renderGame();
+}
+
+// ============================================================
+// SWAP
+// ============================================================
+function handlePlayerTap(id) {
+  const pd = gameState.playerData[id];
+  if (!gameState.swapStep) {
+    if (pd.onField) { gameState.swapStep='out'; gameState._outId=id; showHint('Wähle den Spieler der reinkommt'); }
+    else            { gameState.swapStep='in';  gameState._inId=id;  showHint('Wähle den Spieler der rauskommt'); }
+  } else if (gameState.swapStep==='out') {
+    if (!pd.onField)         doSwap(gameState._outId, id);
+    else if (id===gameState._outId) cancelSwap();
+    else                     gameState._outId=id;
+  } else if (gameState.swapStep==='in') {
+    if (pd.onField)          doSwap(id, gameState._inId);
+    else if (id===gameState._inId) cancelSwap();
+  }
+  renderGame();
+}
+function doSwap(outId, inId) {
+  const now=Date.now(), o=gameState.playerData[outId], i=gameState.playerData[inId];
+  if (gameState.running) {
+    if (o.lastFieldStart) { o.fieldMs+=now-o.lastFieldStart; o.lastFieldStart=null; }
+    i.lastFieldStart=now;
+  }
+  o.onField=false; i.onField=true; i.stints++;
+  gameState.swapStep=null; gameState._outId=null; gameState._inId=null;
+  hideHint(); renderGame();
+}
+function cancelSwap() { gameState.swapStep=null; gameState._outId=null; gameState._inId=null; hideHint(); renderGame(); }
+function showHint(m)  { const h=document.getElementById('hint-bar'); h.textContent=m; h.classList.add('visible'); }
+function hideHint()   { document.getElementById('hint-bar').classList.remove('visible'); }
+
+// ============================================================
+// RENDER GAME
+// ============================================================
+function renderGame() {
+  const active = getActivePlayers();
+  // Field: sort by (target - current) ascending → player closest to/over target shown last (bottom), most behind shown first (top)
+  const field  = active.filter(p=>gameState.playerData[p.id]?.onField)
+    .sort((a,b)=>(calcTargetMs(a)-getPlayerMs(a.id))-(calcTargetMs(b)-getPlayerMs(b.id)));
+  // Bench: sort by (target - current) descending → player furthest behind target shown first (top), over-target shown last (bottom)
+  const bench  = active.filter(p=>!gameState.playerData[p.id]?.onField)
+    .sort((a,b)=>(calcTargetMs(b)-getPlayerMs(b.id))-(calcTargetMs(a)-getPlayerMs(a.id)));
+  document.getElementById('field-count').textContent = field.length;
+  document.getElementById('bench-count').textContent = bench.length;
+  document.getElementById('clock-display').textContent = formatMs(getGameMs());
+  document.getElementById('clock-display').className = 'clock-display'+(gameState.running?'':' paused');
+  document.getElementById('field-players').innerHTML = renderCards(field, true);
+  document.getElementById('bench-players').innerHTML = renderCards(bench, false);
+  document.querySelectorAll('.player-card').forEach(c => { c.onclick=()=>handlePlayerTap(parseInt(c.dataset.id)); });
+}
+
+function renderCards(list, onField) {
+  return list.map(p => {
+    const sel    = gameState._outId===p.id || gameState._inId===p.id;
+    const cls    = `player-card ${onField?'on-field':''} ${sel?'selecting-out':''}`;
+    const cur    = getPlayerMs(p.id);
+    const tgt    = calcTargetMs(p);
+    const prog   = getPrognosisMs(p);
+    const sig    = getStatusSignal(p);
+    const label  = SIGNAL_LABELS[sig];
+    // Soll color
+    const diff   = cur - tgt;
+    const tc     = diff >= 0 ? 'var(--green)' : 'var(--muted)';
+    // Prognosis label: show max reachable for bench, projected for field
+    const progLabel = onField ? `⟶ ${formatMs(prog)}` : `max. ${formatMs(prog)}`;
+    return `<div class="${cls}" data-id="${p.id}">
+      ${onField?'<div class="status-dot"></div>':''}
+      <div class="card-top">
+        <div class="player-number">${p.number||'–'}</div>
+        <span class="status-pill pill-${sig}" data-id="${p.id}">
+          <span class="pill-dot"></span>${label}
+        </span>
+      </div>
+      <div class="player-name-card">${p.name||'Spieler'}</div>
+      <div style="display:flex;align-items:baseline;gap:3px;">
+        <div class="player-time" data-id="${p.id}">${formatMs(cur)}</div>
+        <span class="time-soll" style="color:${tc};">/ ${formatMs(tgt)}</span>
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:600;color:var(--muted);margin-top:3px;" class="player-prognosis" data-id="${p.id}">${progLabel}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// GAME SCREEN BUTTONS
+// ============================================================
+document.getElementById('btn-save-game').onclick = () => saveGameState(false);
+
+document.getElementById('btn-to-results').onclick = showResults;
+
+// ← back arrow: go to setup BUT keep game alive
+document.getElementById('btn-game-to-setup').onclick = () => {
+  saveGameState(true); // silently save so we can return
+  showScreen('screen-setup');
+  // Ensure resume button is visible
+  document.getElementById('btn-resume-game').style.display = '';
+};
+
+// Results screen back button — return to GAME, not setup
+document.getElementById('btn-back-to-game').onclick = () => {
+  enterGameScreen();
+};
+
+// Results screen "zur Übersicht" — go to setup
+document.getElementById('btn-results-to-setup').onclick = () => {
+  saveGameState(true);
+  showScreen('screen-setup');
+  document.getElementById('btn-resume-game').style.display = '';
+};
+
+// ============================================================
+// RESULTS
+// ============================================================
+function showResults() {
+  const active  = getActivePlayers();
+  const data    = active.map(p => ({
+    ...p, ms: getPlayerMs(p.id),
+    stints: gameState.playerData[p.id]?.stints||0,
+    onField: gameState.playerData[p.id]?.onField||false,
+  })).sort((a,b)=>b.ms-a.ms);
+  const maxMs   = data[0]?.ms||1;
+  const totalMs = getGameMs();
+  const opp     = document.getElementById('game-opponent')?.value || '–';
+  const dateStr = (() => { const d=document.getElementById('game-date')?.value; return d?new Date(d+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}):'–'; })();
+  document.getElementById('results-subtitle').textContent = opp+' · '+dateStr+' · '+formatMs(totalMs);
+  document.getElementById('results-list').innerHTML = data.map(p => {
+    const pct  = Math.round(p.ms/maxMs*100);
+    const tMs  = calcTargetMs(p);
+    const diff = p.ms-tMs;
+    const ds   = (diff>=0?'+':'-')+formatMs(Math.abs(diff));
+    const dc   = diff>=0?'var(--green)':'var(--accent)';
+    return `<div class="result-row">
+      <div class="result-number">${p.number||'–'}</div>
+      <div>
+        <div class="result-name">${p.name||'?'}</div>
+        <div class="result-sub">${p.stints} Einsatz${p.stints!==1?'e':''} · Soll: ${formatMs(tMs)} · <span style="color:${dc}">${ds}</span>${p.onField?' · 🟢':''}</div>
+      </div>
+      <div class="result-time">${formatMs(p.ms)}</div>
+      <div class="result-bar-wrap"><div class="result-bar-bg"><div class="result-bar-fill" style="width:${pct}%"></div></div></div>
+    </div>`;
+  }).join('');
+  showScreen('screen-results');
+}
+
+// ============================================================
+// HISTORY SCREEN
+// ============================================================
+function showHistory() {
+  renderHistoryList();
+  showScreen('screen-history');
+}
+
+function renderHistoryList() {
+  const hist = loadHistory();
+  const list = document.getElementById('history-list');
+  if (!hist.length) {
+    list.innerHTML = '<div style="color:var(--muted);text-align:center;padding:40px 0;font-size:.9rem;">Noch keine gespeicherten Spiele.<br>Spiele werden automatisch nach dem Abpfiff gespeichert.</div>';
+    return;
+  }
+  list.innerHTML = hist.map((g,i) => {
+    const dateStr = g.date ? new Date(g.date+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+    return `<div class="history-item">
+      <div class="history-item-body" data-hist-idx="${i}" style="cursor:pointer;">
+        <div class="history-item-header">
+          <div class="history-opponent">vs. ${g.opponent||'Unbekannter Gegner'}</div>
+          <div class="history-date">${dateStr}</div>
+        </div>
+        <div class="history-meta">${formatMs(g.totalMs||0)} Spielzeit · ${g.players?.length||0} Spieler · ${g.durationMin||40}min Halbzeit</div>
+      </div>
+      <button class="history-delete" data-del-idx="${i}" title="Löschen">🗑</button>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.history-item-body').forEach(el => {
+    el.addEventListener('click', function() { showHistoryDetail(hist[parseInt(this.dataset.histIdx)]); });
+  });
+
+  list.querySelectorAll('.history-delete').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const idx = parseInt(this.dataset.delIdx);
+      const g   = hist[idx];
+      const opp = g.opponent || 'Unbekannter Gegner';
+      showConfirm('Spiel löschen?', `"vs. ${opp}" wird unwiderruflich gelöscht.`, () => {
+        const h = loadHistory();
+        h.splice(idx, 1);
+        try { localStorage.setItem('hbt_history', JSON.stringify(h)); } catch(e) {}
+        renderHistoryList();
+      }, 'Löschen');
+    });
+  });
+}
+
+function showHistoryDetail(g) {
+  const dateStr = g.date ? new Date(g.date+'T12:00:00').toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}) : '–';
+  document.getElementById('hd-title').textContent = 'vs. '+(g.opponent||'Unbekannt');
+  document.getElementById('hd-sub').textContent = dateStr+' · '+formatMs(g.totalMs||0)+' Spielzeit';
+  const ps  = (g.players||[]).sort((a,b)=>b.ms-a.ms);
+  const max = ps[0]?.ms||1;
+  document.getElementById('hd-players').innerHTML = ps.map(p => {
+    const pct  = Math.round(p.ms/max*100);
+    const tMs  = p.target||0;
+    const diff = p.ms-tMs;
+    const ds   = (diff>=0?'+':'-')+formatMs(Math.abs(diff));
+    const dc   = diff>=0?'var(--green)':'var(--accent)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--accent);font-size:1.08rem;margin-right:7px;">${p.number||'–'}</span>
+        <span style="font-weight:600;">${p.name||'?'}</span>
+        <div style="font-size:.71rem;color:var(--muted);margin-top:2px;">${p.stints||0} Einsatz${(p.stints||0)!==1?'e':''} · Soll: ${formatMs(tMs)} · <span style="color:${dc}">${ds}</span></div>
+        <div style="background:var(--surface2);border-radius:4px;height:4px;margin-top:5px;"><div style="background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;height:4px;width:${pct}%;"></div></div>
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.15rem;margin-left:12px;">${formatMs(p.ms)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('overlay-history-detail').classList.add('visible');
+}
+
+document.getElementById('btn-history-back').onclick = () => showScreen('screen-setup');
+
+// ============================================================
+// NAV
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+initSetup();
+
+// Restore banner
+if (hasSavedGame()) {
+  const banner = document.createElement('div');
+  banner.id = 'restore-banner';
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1a1d27;border-bottom:2px solid #e8382b;padding:10px 16px;z-index:999;display:flex;align-items:center;justify-content:space-between;gap:10px;';
+  banner.innerHTML = `
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;color:#f0f2ff;">🏐 Laufendes Spiel gefunden</div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="doRestore()" style="background:#22c55e;border:none;border-radius:8px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.84rem;padding:6px 12px;cursor:pointer;">Fortsetzen</button>
+      <button onclick="dismissRestore()" style="background:#2e3350;border:none;border-radius:8px;color:#6b7099;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.84rem;padding:6px 12px;cursor:pointer;">Ignorieren</button>
+    </div>`;
+  document.body.appendChild(banner);
+  document.querySelector('.screen.active').style.paddingTop = '72px';
+}
+
+function doRestore() {
+  if (restoreSavedGame()) {
+    document.getElementById('restore-banner')?.remove();
+    document.querySelector('.screen')?.style.removeProperty('padding-top');
+    const opp  = localStorage.getItem('hbt_opponent') || '';
+    const date = localStorage.getItem('hbt_date')     || today();
+    document.getElementById('game-opponent').value = opp;
+    document.getElementById('game-date').value     = date;
+    enterGameScreen();
+  }
+}
+function dismissRestore() {
+  clearSavedGame();
+  document.getElementById('restore-banner')?.remove();
+  document.querySelector('.screen')?.style.removeProperty('padding-top');
+  document.getElementById('btn-resume-game').style.display = 'none';
+}
+
+// ============================================================
+// SERVICE WORKER (inline, enables PWA install prompt on Android)
+// ============================================================
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'hbt-v1';
+    self.addEventListener('install', e => {
+      e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/'])));
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => { self.clients.claim(); });
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([swCode], {type: 'application/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+</script>
+</body>
+</html>
