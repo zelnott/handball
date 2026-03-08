@@ -112,6 +112,34 @@
   .pill-yellow .pill-dot{background:#ffb700;}
   .pill-red  .pill-dot{background:var(--accent);}
   .status-dot{position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--green);}
+  /* CORRECTION BUTTONS */
+  .corr-btns{display:flex;gap:3px;margin-top:4px;}
+  .btn-corr{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.75rem;padding:3px 7px;transition:all .12s;flex:1;text-align:center;}
+  .btn-corr:active{transform:scale(.93);background:var(--border);}
+  .btn-corr.minus{color:var(--accent);}
+  .btn-corr.plus{color:var(--green);}
+  /* CLOCK CORRECTION */
+  .clock-corr{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-top:7px;}
+  .btn-clock-corr{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;padding:7px 4px;transition:all .12s;}
+  .btn-clock-corr:active{transform:scale(.95);}
+  .btn-clock-corr.minus{color:var(--accent);}
+  .btn-clock-corr.plus{color:var(--green);}
+  /* CONSISTENCY BAR */
+  .consistency-bar{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .consistency-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+  .consistency-value{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;}
+  .consistency-ok{color:var(--green);}
+  .consistency-warn{color:#ffb700;}
+  .consistency-err{color:var(--accent);}
+  /* TW BUTTONS */
+  .tw-btns{display:flex;gap:3px;margin-top:4px;}
+  .btn-tw{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;padding:3px 6px;transition:all .12s;}
+  .btn-tw:active{transform:scale(.93);}
+  .btn-tw.tw-active{background:rgba(99,155,255,.2);border-color:var(--blue);color:var(--blue);}
+  /* TW SECTION */
+  .tw-section{margin-bottom:8px;}
+  .tw-card{background:rgba(99,155,255,.06);border:1.5px solid var(--blue);border-radius:12px;padding:8px 11px;position:relative;}
+  .tw-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:2px;}
   /* RESULTS */
   .results-list{flex:1;overflow-y:auto;}
   .result-row{display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--border);}
@@ -261,10 +289,26 @@
       <button class="btn-clock btn-start" id="btn-clock-start">▶ Start</button>
       <button class="btn-clock btn-stop" id="btn-clock-stop">⏸ Pause</button>
     </div>
+    <div class="clock-corr">
+      <button class="btn-clock-corr minus" id="btn-corr-clock-m2">−1min</button>
+      <button class="btn-clock-corr minus" id="btn-corr-clock-m1">−30s</button>
+      <button class="btn-clock-corr plus"  id="btn-corr-clock-p1">+30s</button>
+      <button class="btn-clock-corr plus"  id="btn-corr-clock-p2">+1min</button>
+    </div>
   </div>
 
   <div class="halftime-banner" id="halftime-banner">⏸ Halbzeit – Uhr anhalten</div>
   <div class="hint-bar" id="hint-bar"></div>
+
+  <div class="consistency-bar">
+    <div class="consistency-label">Zeitbilanz</div>
+    <div class="consistency-value" id="consistency-display">–</div>
+  </div>
+
+  <div class="tw-section" id="tw-section" style="display:none;">
+    <div class="col-header" style="color:var(--blue);margin-bottom:5px;">🧤 Torwart</div>
+    <div id="tw-cards"></div>
+  </div>
 
   <div class="combined-grid">
     <div class="combined-col">
@@ -299,7 +343,7 @@
 // ============================================================
 // STATE
 // ============================================================
-const APP_VERSION = '3.0';
+const APP_VERSION = '3.1';
 let players = [];
 let gameDurationMin = 40; // per half
 let fieldSize = 7;
@@ -400,7 +444,7 @@ function loadSavedSetup() {
   try {
     const saved = localStorage.getItem('hbt_players');
     if (!saved) return false;
-    players = JSON.parse(saved).map(p => ({ active: true, pctAdjust: 0, ...p }));
+    players = JSON.parse(saved).map(p => ({ active: true, pctAdjust: 0, tw1: false, tw2: false, ...p }));
     gameDurationMin = parseFloat(localStorage.getItem('hbt_duration')) || 40;
     fieldSize = parseFloat(localStorage.getItem('hbt_fieldsize')) || 7;
     return true;
@@ -411,7 +455,7 @@ function hasSavedGame() { return localStorage.getItem('hbt_active_game') === '1'
 
 function restoreSavedGame() {
   try {
-    players = JSON.parse(localStorage.getItem('hbt_players_game')).map(p => ({ active: true, pctAdjust: 0, ...p }));
+    players = JSON.parse(localStorage.getItem('hbt_players_game')).map(p => ({ active: true, pctAdjust: 0, tw1: false, tw2: false, ...p }));
     gameDurationMin = parseFloat(localStorage.getItem('hbt_duration_game')) || 40;
     fieldSize = parseFloat(localStorage.getItem('hbt_fieldsize_game')) || 7;
     gameState = JSON.parse(localStorage.getItem('hbt_gamestate'));
@@ -446,25 +490,52 @@ function saveToHistory(gameEntry) {
 // TARGET TIME
 // ============================================================
 function getActivePlayers() { return players.filter(p => p.active !== false); }
+function getFieldPlayers() { return getActivePlayers().filter(p => !p.tw1 && !p.tw2); }
+function getTwPlayers()    { return getActivePlayers().filter(p => p.tw1 || p.tw2); }
 
 function getBaseSollMin() {
   const dur = parseFloat(document.getElementById('game-duration')?.value) || gameDurationMin;
   const fs  = parseFloat(document.getElementById('field-size')?.value)    || fieldSize;
-  const a   = getActivePlayers().filter(p => p.name.trim() || p.number.toString().trim());
+  const a   = getActivePlayers().filter(p => !p.tw1 && !p.tw2 && (p.name.trim() || p.number.toString().trim()));
   return (dur * 2 * fs) / Math.max(a.length, 1);
 }
 
+// TW helpers
+function isTw(p) { return p.tw1 || p.tw2; }
+function getTwMs(p) {
+  // TW gets half-duration for each half they're TW
+  return ((p.tw1 ? 1 : 0) + (p.tw2 ? 1 : 0)) * gameDurationMin * 60000;
+}
+
+// calcTargetMs: TW gets fixed time; field players split remaining per half
 function calcTargetMs(player, forSetup) {
   const dur  = forSetup ? (parseFloat(document.getElementById('game-duration')?.value) || 40) : gameDurationMin;
   const fs   = forSetup ? (parseFloat(document.getElementById('field-size')?.value)    || 7)  : fieldSize;
-  const pool = forSetup
+
+  // If player is TW both halves → full fixed time, no field calc
+  if (player.tw1 && player.tw2) return dur * 2 * 60000;
+
+  // Separate pool per half: active non-TW1 players for hz1, non-TW2 for hz2
+  const allActive = forSetup
     ? getActivePlayers().filter(p => p.name.trim() || p.number.toString().trim())
     : getActivePlayers();
-  if (!pool.length) return 0;
-  const sumW = pool.reduce((s, p) => s + Math.max(0, 1 + (p.pctAdjust || 0) / 100), 0);
-  const w    = Math.max(0, 1 + (player.pctAdjust || 0) / 100);
-  // Total game = dur * 2 halves
-  return sumW > 0 ? (w / sumW) * dur * 2 * fs * 60000 : 0;
+
+  function halfTarget(isTwThisHalf, isFieldThisHalf, half) {
+    if (isTwThisHalf) return dur * 60000; // TW gets full half
+    if (!isFieldThisHalf) {
+      // Field player this half: pool = active players not TW this half
+      const pool = allActive.filter(p => half === 1 ? !p.tw1 : !p.tw2);
+      if (!pool.length) return 0;
+      const sumW = pool.reduce((s, p) => s + Math.max(0, 1 + (p.pctAdjust || 0) / 100), 0);
+      const w    = Math.max(0, 1 + (player.pctAdjust || 0) / 100);
+      return sumW > 0 ? (w / sumW) * dur * fs * 60000 : 0;
+    }
+    return 0;
+  }
+
+  const t1 = halfTarget(player.tw1, !player.tw1, 1);
+  const t2 = halfTarget(player.tw2, !player.tw2, 2);
+  return t1 + t2;
 }
 
 // Prognosis: 
@@ -473,10 +544,10 @@ function calcTargetMs(player, forSetup) {
 function getPrognosisMs(p) {
   const pd = gameState.playerData[p.id];
   if (!pd) return 0;
-  const curMs      = getPlayerMs(p.id);
+  if (p.tw1 && p.tw2) return gameDurationMin * 2 * 60000; // full game TW
+  const curMs       = getPlayerMs(p.id);
   const totalGameMs = gameDurationMin * 2 * 60 * 1000;
   const remainingMs = Math.max(0, totalGameMs - getGameMs());
-  // Both field and bench: max they can reach = current + remaining
   return curMs + remainingMs;
 }
 
@@ -505,7 +576,7 @@ const SIGNAL_LABELS = {
 // ============================================================
 function initSetup() {
   if (!loadSavedSetup()) {
-    players = defaultPlayers.map((p,i) => ({ id: i, number: p.number, name: p.name, pctAdjust: 0, active: true }));
+    players = defaultPlayers.map((p,i) => ({ id: i, number: p.number, name: p.name, pctAdjust: 0, active: true, tw1: false, tw2: false }));
   }
   const durEl = document.getElementById('game-duration');
   const fsEl  = document.getElementById('field-size');
@@ -544,8 +615,12 @@ function appendPlayerRow(p, list) {
       <button class="btn-icon ${isActive?'active-toggle':'inactive-toggle'}" data-toggle="${p.id}" style="font-size:.82rem;">${isActive?'✓':'✗'}</button>
       <button class="btn-icon danger" data-remove="${p.id}" style="font-size:.8rem;">✕</button>
     </div>
+    <div style="display:flex;gap:5px;margin-bottom:2px;padding-right:80px;">
+      <button class="btn-tw ${p.tw1?'tw-active':''}" data-tw="1" data-pid="${p.id}">TW HZ1</button>
+      <button class="btn-tw ${p.tw2?'tw-active':''}" data-tw="2" data-pid="${p.id}">TW HZ2</button>
+    </div>
     <div class="target-preview" data-id="${p.id}" style="color:${isActive?pctColor:'var(--muted)'};padding-right:80px;margin-bottom:4px;">
-      ${isActive ? 'Soll: '+tMin+' min (Vollspiel)' : 'Inaktiv – kein Tracking'}
+      ${isActive ? 'Soll: '+tMin+' min' : 'Inaktiv – kein Tracking'}
     </div>`;
   list.appendChild(w);
 }
@@ -588,6 +663,22 @@ function attachListListeners() {
       scheduleDebouncedSave();
     });
   });
+  list.querySelectorAll('button[data-tw]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const pid  = parseInt(this.dataset.pid);
+      const half = parseInt(this.dataset.tw); // 1 or 2
+      const p    = players.find(x => x.id === pid);
+      if (!p) return;
+      const field = half === 1 ? 'tw1' : 'tw2';
+      const newVal = !p[field];
+      // Only one TW per half — clear others
+      if (newVal) players.forEach(x => { if (x.id !== pid) x[field] = false; });
+      p[field] = newVal;
+      buildPlayerInputs();
+      refreshTargetPreviews();
+      scheduleDebouncedSave();
+    });
+  });
 }
 
 function refreshTargetPreviews() {
@@ -602,7 +693,8 @@ function refreshTargetPreviews() {
     if (p.active === false) { pr.textContent = 'Inaktiv – kein Tracking'; pr.style.color = 'var(--muted)'; return; }
     const tMin = (calcTargetMs(p, true)/60000).toFixed(1);
     const pct  = p.pctAdjust || 0;
-    pr.textContent = 'Soll: '+tMin+' min (Vollspiel)';
+    const twLabel = (p.tw1 && p.tw2) ? ' (TW beide HZ)' : p.tw1 ? ' (TW HZ1)' : p.tw2 ? ' (TW HZ2)' : '';
+    pr.textContent = 'Soll: '+tMin+' min'+twLabel;
     pr.style.color = pct > 0 ? 'var(--green)' : pct < 0 ? 'var(--accent)' : 'var(--muted)';
   });
 }
@@ -649,7 +741,7 @@ document.getElementById('btn-reset-times').onclick = () => {
 
 document.getElementById('btn-add-player').onclick = () => {
   const maxId = players.length ? Math.max(...players.map(p=>p.id))+1 : 0;
-  players.push({ id: maxId, number:'', name:'', pctAdjust:0, active:true });
+  players.push({ id: maxId, number:'', name:'', pctAdjust:0, active:true, tw1:false, tw2:false });
   buildPlayerInputs(); refreshTargetPreviews();
   setTimeout(() => {
     const rows = document.querySelectorAll('.player-row-block');
@@ -666,7 +758,8 @@ document.getElementById('btn-start-game').onclick = () => {
   // fresh game state
   gameState = { running:false, gameMs:0, lastStart:null, playerData:{}, swapStep:null, _outId:null, _inId:null, half:1, halfShownAlert:false };
   players.forEach(p => { gameState.playerData[p.id] = { fieldMs:0, lastFieldStart:null, onField:false, stints:0 }; });
-  getActivePlayers().slice(0, fieldSize).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
+  // Only non-TW players go on field initially
+  getActivePlayers().filter(p=>!p.tw1&&!p.tw2).slice(0, fieldSize).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
   document.getElementById('game-opponent').value = '';
   document.getElementById('game-date').value = today();
   enterGameScreen();
@@ -823,9 +916,51 @@ function tickClock() {
       pill.innerHTML = `<span class="pill-dot"></span>${SIGNAL_LABELS[sig]}`;
     }
   });
+  // update TW card times
+  getTwPlayers().forEach(p => {
+    const el = document.querySelector(`.player-time[data-id="${p.id}"]`);
+    if (el) el.textContent = formatMs(getPlayerMs(p.id));
+  });
+  updateConsistency();
   checkTimeTriggers();
   if (tickCount % 4 === 0) renderGame();
 }
+
+// ============================================================
+// TIME CORRECTIONS
+// ============================================================
+function correctPlayer(pid, deltaSec) {
+  const pd = gameState.playerData[pid];
+  if (!pd) return;
+  const deltaMs = deltaSec * 1000;
+  pd.fieldMs = Math.max(0, pd.fieldMs + deltaMs);
+  // If on field and running, also adjust lastFieldStart to keep live calc correct
+  if (pd.onField && pd.lastFieldStart && gameState.running) {
+    pd.lastFieldStart = Math.min(Date.now(), pd.lastFieldStart - deltaMs);
+  }
+  renderGame();
+}
+
+function correctClock(deltaSec) {
+  const deltaMs = deltaSec * 1000;
+  // Adjust game clock
+  gameState.gameMs = Math.max(0, gameState.gameMs + deltaMs);
+  // Adjust all field players simultaneously
+  players.forEach(p => {
+    const pd = gameState.playerData[p.id];
+    if (!pd || !pd.onField) return;
+    pd.fieldMs = Math.max(0, pd.fieldMs + deltaMs);
+    if (pd.lastFieldStart && gameState.running) {
+      pd.lastFieldStart = Math.min(Date.now(), pd.lastFieldStart - deltaMs);
+    }
+  });
+  renderGame();
+}
+
+document.getElementById('btn-corr-clock-m2').onclick = () => correctClock(-60);
+document.getElementById('btn-corr-clock-m1').onclick = () => correctClock(-30);
+document.getElementById('btn-corr-clock-p1').onclick = () => correctClock(30);
+document.getElementById('btn-corr-clock-p2').onclick = () => correctClock(60);
 
 // ============================================================
 // SWAP
@@ -864,19 +999,90 @@ function hideHint()   { document.getElementById('hint-bar').classList.remove('vi
 // ============================================================
 function renderGame() {
   const active = getActivePlayers();
-  // Field: sort by (target - current) ascending → player closest to/over target shown last (bottom), most behind shown first (top)
-  const field  = active.filter(p=>gameState.playerData[p.id]?.onField)
+  const twPlayers = active.filter(p => p.tw1 || p.tw2);
+  const nonTw     = active.filter(p => !p.tw1 && !p.tw2);
+
+  // Field: sort by (target - current) ascending
+  const field  = nonTw.filter(p=>gameState.playerData[p.id]?.onField)
     .sort((a,b)=>(calcTargetMs(a)-getPlayerMs(a.id))-(calcTargetMs(b)-getPlayerMs(b.id)));
-  // Bench: sort by (target - current) descending → player furthest behind target shown first (top), over-target shown last (bottom)
-  const bench  = active.filter(p=>!gameState.playerData[p.id]?.onField)
+  // Bench: sort by (target - current) descending
+  const bench  = nonTw.filter(p=>!gameState.playerData[p.id]?.onField)
     .sort((a,b)=>(calcTargetMs(b)-getPlayerMs(b.id))-(calcTargetMs(a)-getPlayerMs(a.id)));
+
   document.getElementById('field-count').textContent = field.length;
   document.getElementById('bench-count').textContent = bench.length;
   document.getElementById('clock-display').textContent = formatMs(getGameMs());
   document.getElementById('clock-display').className = 'clock-display'+(gameState.running?'':' paused');
   document.getElementById('field-players').innerHTML = renderCards(field, true);
   document.getElementById('bench-players').innerHTML = renderCards(bench, false);
+
+  // TW section
+  const twSec = document.getElementById('tw-section');
+  const twCards = document.getElementById('tw-cards');
+  if (twPlayers.length) {
+    twSec.style.display = '';
+    twCards.innerHTML = renderTwCards(twPlayers);
+  } else {
+    twSec.style.display = 'none';
+    twCards.innerHTML = '';
+  }
+
+  // Consistency bar
+  updateConsistency();
+
+  // Attach tap handlers (field+bench only — TW not swappable via tap)
   document.querySelectorAll('.player-card').forEach(c => { c.onclick=()=>handlePlayerTap(parseInt(c.dataset.id)); });
+  // Correction buttons
+  document.querySelectorAll('.btn-corr').forEach(b => {
+    b.onclick = e => { e.stopPropagation(); correctPlayer(parseInt(b.dataset.pid), parseInt(b.dataset.delta)); };
+  });
+}
+
+function updateConsistency() {
+  const gameMs  = getGameMs();
+  const shouldMs = gameMs * fieldSize; // expected total = elapsed * field slots
+  const actualMs = getActivePlayers().filter(p=>!p.tw1&&!p.tw2).reduce((s,p)=>s+getPlayerMs(p.id),0);
+  const diff     = actualMs - shouldMs;
+  const el       = document.getElementById('consistency-display');
+  if (!el) return;
+  const sign = diff >= 0 ? '+' : '−';
+  const abs  = formatMs(Math.abs(diff));
+  if (Math.abs(diff) < 10000) { // within 10s = ok
+    el.textContent = '✓ ausgeglichen';
+    el.className   = 'consistency-value consistency-ok';
+  } else {
+    el.textContent = sign + abs + ' Abweichung';
+    el.className   = 'consistency-value ' + (Math.abs(diff) < 60000 ? 'consistency-warn' : 'consistency-err');
+  }
+}
+
+function renderTwCards(list) {
+  return list.map(p => {
+    const cur  = getPlayerMs(p.id);
+    const tgt  = calcTargetMs(p);
+    const diff = cur - tgt;
+    const tc   = diff >= 0 ? 'var(--green)' : 'var(--muted)';
+    const twLabel = (p.tw1 && p.tw2) ? 'TW HZ1+2' : p.tw1 ? 'TW HZ1' : 'TW HZ2';
+    return `<div class="tw-card" style="margin-bottom:6px;">
+      <div class="tw-badge">🧤 ${twLabel}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:var(--blue);">${p.number||'–'}</span>
+          <span style="font-size:.86rem;font-weight:600;margin-left:6px;">${p.name||'Torwart'}</span>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;" class="player-time" data-id="${p.id}">${formatMs(cur)}</div>
+          <span class="time-soll" style="color:${tc};">/ ${formatMs(tgt)}</span>
+        </div>
+      </div>
+      <div class="corr-btns">
+        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-30">−30s</button>
+        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-60">−1min</button>
+        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="60">+1min</button>
+        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="30">+30s</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderCards(list, onField) {
@@ -907,6 +1113,12 @@ function renderCards(list, onField) {
         <span class="time-soll" style="color:${tc};">/ ${formatMs(tgt)}</span>
       </div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:600;color:var(--muted);margin-top:3px;" class="player-prognosis" data-id="${p.id}">${progLabel}</div>
+      <div class="corr-btns">
+        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-30">−30s</button>
+        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-60">−1min</button>
+        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="60">+1min</button>
+        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="30">+30s</button>
+      </div>
     </div>`;
   }).join('');
 }
@@ -947,6 +1159,7 @@ function showResults() {
     ...p, ms: getPlayerMs(p.id),
     stints: gameState.playerData[p.id]?.stints||0,
     onField: gameState.playerData[p.id]?.onField||false,
+    isTw: p.tw1||p.tw2,
   })).sort((a,b)=>b.ms-a.ms);
   const maxMs   = data[0]?.ms||1;
   const totalMs = getGameMs();
@@ -963,7 +1176,7 @@ function showResults() {
       <div class="result-number">${p.number||'–'}</div>
       <div>
         <div class="result-name">${p.name||'?'}</div>
-        <div class="result-sub">${p.stints} Einsatz${p.stints!==1?'e':''} · Soll: ${formatMs(tMs)} · <span style="color:${dc}">${ds}</span>${p.onField?' · 🟢':''}</div>
+        <div class="result-sub">${p.isTw?'🧤 TW · ':''}${p.stints} Einsatz${p.stints!==1?'e':''} · Soll: ${formatMs(tMs)} · <span style="color:${dc}">${ds}</span>${p.onField?' · 🟢':''}</div>
       </div>
       <div class="result-time">${formatMs(p.ms)}</div>
       <div class="result-bar-wrap"><div class="result-bar-bg"><div class="result-bar-fill" style="width:${pct}%"></div></div></div>
