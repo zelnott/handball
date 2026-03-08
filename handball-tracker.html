@@ -290,10 +290,10 @@
       <button class="btn-clock btn-stop" id="btn-clock-stop">⏸ Pause</button>
     </div>
     <div class="clock-corr">
-      <button class="btn-clock-corr minus" id="btn-corr-clock-m2">−1min</button>
-      <button class="btn-clock-corr minus" id="btn-corr-clock-m1">−30s</button>
-      <button class="btn-clock-corr plus"  id="btn-corr-clock-p1">+30s</button>
-      <button class="btn-clock-corr plus"  id="btn-corr-clock-p2">+1min</button>
+      <button class="btn-clock-corr minus" id="btn-corr-clock-m2">−30s</button>
+      <button class="btn-clock-corr minus" id="btn-corr-clock-m1">−15s</button>
+      <button class="btn-clock-corr plus"  id="btn-corr-clock-p1">+15s</button>
+      <button class="btn-clock-corr plus"  id="btn-corr-clock-p2">+30s</button>
     </div>
   </div>
 
@@ -305,11 +305,6 @@
     <div class="consistency-value" id="consistency-display">–</div>
   </div>
 
-  <div class="tw-section" id="tw-section" style="display:none;">
-    <div class="col-header" style="color:var(--blue);margin-bottom:5px;">🧤 Torwart</div>
-    <div id="tw-cards"></div>
-  </div>
-
   <div class="combined-grid">
     <div class="combined-col">
       <div class="col-header" style="color:var(--green);">🟢 Feld <span class="badge active-badge" id="field-count">0</span></div>
@@ -319,6 +314,11 @@
       <div class="col-header" style="color:var(--muted);">🪑 Bank <span class="badge" id="bench-count">0</span></div>
       <div id="bench-players"></div>
     </div>
+  </div>
+
+  <div class="tw-section" id="tw-section" style="display:none;margin-top:4px;">
+    <div class="col-header" style="color:var(--blue);margin-bottom:5px;">🧤 Torwart</div>
+    <div id="tw-cards"></div>
   </div>
 </div>
 
@@ -507,35 +507,28 @@ function getTwMs(p) {
   return ((p.tw1 ? 1 : 0) + (p.tw2 ? 1 : 0)) * gameDurationMin * 60000;
 }
 
-// calcTargetMs: TW gets fixed time; field players split remaining per half
+// calcTargetMs: TW gets fixed half-time; field players share slots per half
 function calcTargetMs(player, forSetup) {
-  const dur  = forSetup ? (parseFloat(document.getElementById('game-duration')?.value) || 40) : gameDurationMin;
-  const fs   = forSetup ? (parseFloat(document.getElementById('field-size')?.value)    || 7)  : fieldSize;
+  const dur = forSetup ? (parseFloat(document.getElementById('game-duration')?.value) || 40) : gameDurationMin;
+  const fs  = forSetup ? (parseFloat(document.getElementById('field-size')?.value)    || 7)  : fieldSize;
 
-  // If player is TW both halves → full fixed time, no field calc
-  if (player.tw1 && player.tw2) return dur * 2 * 60000;
-
-  // Separate pool per half: active non-TW1 players for hz1, non-TW2 for hz2
   const allActive = forSetup
     ? getActivePlayers().filter(p => p.name.trim() || p.number.toString().trim())
     : getActivePlayers();
 
-  function halfTarget(isTwThisHalf, isFieldThisHalf, half) {
-    if (isTwThisHalf) return dur * 60000; // TW gets full half
-    if (!isFieldThisHalf) {
-      // Field player this half: pool = active players not TW this half
-      const pool = allActive.filter(p => half === 1 ? !p.tw1 : !p.tw2);
-      if (!pool.length) return 0;
-      const sumW = pool.reduce((s, p) => s + Math.max(0, 1 + (p.pctAdjust || 0) / 100), 0);
-      const w    = Math.max(0, 1 + (player.pctAdjust || 0) / 100);
-      return sumW > 0 ? (w / sumW) * dur * fs * 60000 : 0;
-    }
-    return 0;
+  // For a given half (1 or 2): return this player's target minutes
+  function halfTarget(half) {
+    const isTwThisHalf = half === 1 ? player.tw1 : player.tw2;
+    if (isTwThisHalf) return dur * 60000; // TW: full half duration
+    // Field player this half: weighted share among all non-TW players this half
+    const pool = allActive.filter(p => half === 1 ? !p.tw1 : !p.tw2);
+    if (!pool.length) return 0;
+    const sumW = pool.reduce((s, p) => s + Math.max(0, 1 + (p.pctAdjust || 0) / 100), 0);
+    const w    = Math.max(0, 1 + (player.pctAdjust || 0) / 100);
+    return sumW > 0 ? (w / sumW) * dur * fs * 60000 : 0;
   }
 
-  const t1 = halfTarget(player.tw1, !player.tw1, 1);
-  const t2 = halfTarget(player.tw2, !player.tw2, 2);
-  return t1 + t2;
+  return halfTarget(1) + halfTarget(2);
 }
 
 // Prognosis: 
@@ -933,34 +926,44 @@ function correctPlayer(pid, deltaSec) {
   const pd = gameState.playerData[pid];
   if (!pd) return;
   const deltaMs = deltaSec * 1000;
-  pd.fieldMs = Math.max(0, pd.fieldMs + deltaMs);
-  // If on field and running, also adjust lastFieldStart to keep live calc correct
   if (pd.onField && pd.lastFieldStart && gameState.running) {
+    // Player on field: live time = fieldMs + (now - lastFieldStart)
+    // Adjust lastFieldStart so the live total changes by deltaMs (fieldMs stays, start moves)
     pd.lastFieldStart = Math.min(Date.now(), pd.lastFieldStart - deltaMs);
+  } else {
+    // Player on bench or paused: just adjust committed fieldMs
+    pd.fieldMs = Math.max(0, pd.fieldMs + deltaMs);
   }
   renderGame();
 }
 
 function correctClock(deltaSec) {
   const deltaMs = deltaSec * 1000;
-  // Adjust game clock
-  gameState.gameMs = Math.max(0, gameState.gameMs + deltaMs);
-  // Adjust all field players simultaneously
-  players.forEach(p => {
-    const pd = gameState.playerData[p.id];
-    if (!pd || !pd.onField) return;
-    pd.fieldMs = Math.max(0, pd.fieldMs + deltaMs);
-    if (pd.lastFieldStart && gameState.running) {
+  if (gameState.running) {
+    // Shift lastStart so gameMs live value changes by deltaMs
+    gameState.lastStart = Math.min(Date.now(), gameState.lastStart - deltaMs);
+    // Shift all field players' lastFieldStart equally
+    players.forEach(p => {
+      const pd = gameState.playerData[p.id];
+      if (!pd || !pd.onField || !pd.lastFieldStart) return;
       pd.lastFieldStart = Math.min(Date.now(), pd.lastFieldStart - deltaMs);
-    }
-  });
+    });
+  } else {
+    // Paused: adjust committed values
+    gameState.gameMs = Math.max(0, gameState.gameMs + deltaMs);
+    players.forEach(p => {
+      const pd = gameState.playerData[p.id];
+      if (!pd || !pd.onField) return;
+      pd.fieldMs = Math.max(0, pd.fieldMs + deltaMs);
+    });
+  }
   renderGame();
 }
 
-document.getElementById('btn-corr-clock-m2').onclick = () => correctClock(-60);
-document.getElementById('btn-corr-clock-m1').onclick = () => correctClock(-30);
-document.getElementById('btn-corr-clock-p1').onclick = () => correctClock(30);
-document.getElementById('btn-corr-clock-p2').onclick = () => correctClock(60);
+document.getElementById('btn-corr-clock-m2').onclick = () => correctClock(-30);
+document.getElementById('btn-corr-clock-m1').onclick = () => correctClock(-15);
+document.getElementById('btn-corr-clock-p1').onclick = () => correctClock(15);
+document.getElementById('btn-corr-clock-p2').onclick = () => correctClock(30);
 
 // ============================================================
 // SWAP
@@ -1000,13 +1003,12 @@ function hideHint()   { document.getElementById('hint-bar').classList.remove('vi
 function renderGame() {
   const active = getActivePlayers();
   const twPlayers = active.filter(p => p.tw1 || p.tw2);
-  const nonTw     = active.filter(p => !p.tw1 && !p.tw2);
 
-  // Field: sort by (target - current) ascending
-  const field  = nonTw.filter(p=>gameState.playerData[p.id]?.onField)
+  // Field: ALL active players currently on field (including TW if somehow on field)
+  const field  = active.filter(p=>gameState.playerData[p.id]?.onField)
     .sort((a,b)=>(calcTargetMs(a)-getPlayerMs(a.id))-(calcTargetMs(b)-getPlayerMs(b.id)));
-  // Bench: sort by (target - current) descending
-  const bench  = nonTw.filter(p=>!gameState.playerData[p.id]?.onField)
+  // Bench: ALL active players not on field (TW included — they can be swapped in)
+  const bench  = active.filter(p=>!gameState.playerData[p.id]?.onField)
     .sort((a,b)=>(calcTargetMs(b)-getPlayerMs(b.id))-(calcTargetMs(a)-getPlayerMs(a.id)));
 
   document.getElementById('field-count').textContent = field.length;
@@ -1058,28 +1060,16 @@ function updateConsistency() {
 
 function renderTwCards(list) {
   return list.map(p => {
-    const cur  = getPlayerMs(p.id);
-    const tgt  = calcTargetMs(p);
-    const diff = cur - tgt;
-    const tc   = diff >= 0 ? 'var(--green)' : 'var(--muted)';
     const twLabel = (p.tw1 && p.tw2) ? 'TW HZ1+2' : p.tw1 ? 'TW HZ1' : 'TW HZ2';
     return `<div class="tw-card" style="margin-bottom:6px;">
-      <div class="tw-badge">🧤 ${twLabel}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:10px;">
         <div>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:var(--blue);">${p.number||'–'}</span>
-          <span style="font-size:.86rem;font-weight:600;margin-left:6px;">${p.name||'Torwart'}</span>
+          <div class="tw-badge">🧤 ${twLabel}</div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-top:2px;">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.4rem;color:var(--blue);">${p.number||'–'}</span>
+            <span style="font-size:.86rem;font-weight:600;">${p.name||'Torwart'}</span>
+          </div>
         </div>
-        <div style="text-align:right;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.3rem;" class="player-time" data-id="${p.id}">${formatMs(cur)}</div>
-          <span class="time-soll" style="color:${tc};">/ ${formatMs(tgt)}</span>
-        </div>
-      </div>
-      <div class="corr-btns">
-        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-30">−30s</button>
-        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-60">−1min</button>
-        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="60">+1min</button>
-        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="30">+30s</button>
       </div>
     </div>`;
   }).join('');
@@ -1115,8 +1105,8 @@ function renderCards(list, onField) {
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:600;color:var(--muted);margin-top:3px;" class="player-prognosis" data-id="${p.id}">${progLabel}</div>
       <div class="corr-btns">
         <button class="btn-corr minus" data-pid="${p.id}" data-delta="-30">−30s</button>
-        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-60">−1min</button>
-        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="60">+1min</button>
+        <button class="btn-corr minus" data-pid="${p.id}" data-delta="-15">−15s</button>
+        <button class="btn-corr plus"  data-pid="${p.id}" data-delta="15">+15s</button>
         <button class="btn-corr plus"  data-pid="${p.id}" data-delta="30">+30s</button>
       </div>
     </div>`;
