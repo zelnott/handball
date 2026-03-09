@@ -420,7 +420,8 @@ function saveGameState(silent) {
     players.forEach(p => {
       const pd = gameState.playerData[p.id];
       if (!pd) return;
-      const fMs = pd.onField && pd.lastFieldStart && gameState.running ? pd.fieldMs+(now-pd.lastFieldStart) : pd.fieldMs;
+      const isTwPlayer = players.find(x=>x.id===p.id && (x.tw1||x.tw2));
+      const fMs = (!isTwPlayer && pd.onField && pd.lastFieldStart && gameState.running) ? pd.fieldMs+(now-pd.lastFieldStart) : pd.fieldMs;
       snap.playerData[p.id] = {...pd, fieldMs: fMs, lastFieldStart: null};
     });
     const opponent = (document.getElementById('game-opponent')?.value || '').trim();
@@ -807,7 +808,21 @@ function getGameMs() {
 function getPlayerMs(id) {
   const pd = gameState.playerData[id];
   if (!pd) return 0;
-  return pd.onField && gameState.running ? pd.fieldMs+(Date.now()-(pd.lastFieldStart||gameState.lastStart)) : pd.fieldMs;
+  // Normal field player
+  if (pd.onField) {
+    return gameState.running ? pd.fieldMs+(Date.now()-(pd.lastFieldStart||gameState.lastStart)) : pd.fieldMs;
+  }
+  // TW: accumulate half-durations automatically
+  const p = players.find(x => x.id === id);
+  if (p && (p.tw1 || p.tw2)) {
+    const halfMs  = gameDurationMin * 60000;
+    const gameMs  = gameState.running ? gameState.gameMs+(Date.now()-gameState.lastStart) : gameState.gameMs;
+    let twMs = 0;
+    if (p.tw1) twMs += Math.min(halfMs, gameMs);               // HZ1 portion
+    if (p.tw2) twMs += Math.max(0, Math.min(halfMs, gameMs - halfMs)); // HZ2 portion
+    return twMs + pd.fieldMs; // pd.fieldMs holds any time as field player
+  }
+  return pd.fieldMs;
 }
 
 function updateClockPhaseLabel() {
@@ -851,7 +866,10 @@ function triggerPause() {
   gameState.gameMs += now - gameState.lastStart; gameState.running = false;
   players.forEach(p => {
     const pd = gameState.playerData[p.id];
-    if (pd?.onField && pd.lastFieldStart) { pd.fieldMs += now-pd.lastFieldStart; pd.lastFieldStart = null; }
+    // Only commit time for real field players (not TW — their time is derived from gameMs)
+    if (pd?.onField && pd.lastFieldStart && !p.tw1 && !p.tw2) {
+      pd.fieldMs += now-pd.lastFieldStart; pd.lastFieldStart = null;
+    }
   });
   clearInterval(clockInterval);
   document.getElementById('clock-block').classList.remove('running');
@@ -885,7 +903,7 @@ document.getElementById('btn-clock-start').onclick = () => {
   if (gameState.half === 2) document.getElementById('halftime-banner').classList.remove('visible');
   const now = Date.now();
   gameState.running = true; gameState.lastStart = now;
-  players.forEach(p => { const pd=gameState.playerData[p.id]; if (pd?.onField && !pd.lastFieldStart) pd.lastFieldStart=now; });
+  players.forEach(p => { const pd=gameState.playerData[p.id]; if (pd?.onField && !pd.lastFieldStart && !p.tw1 && !p.tw2) pd.lastFieldStart=now; });
   document.getElementById('clock-block').classList.add('running');
   clockInterval = setInterval(tickClock, 500);
   renderGame();
@@ -1053,7 +1071,8 @@ function renderGame() {
 function updateConsistency() {
   const gameMs  = getGameMs();
   const shouldMs = gameMs * fieldSize; // expected total = elapsed * field slots
-  const actualMs = getActivePlayers().filter(p=>!p.tw1&&!p.tw2).reduce((s,p)=>s+getPlayerMs(p.id),0);
+  // Include ALL players (field + TW) — TW time comes from getPlayerMs automatically
+  const actualMs = getActivePlayers().reduce((s,p)=>s+getPlayerMs(p.id),0);
   const diff     = actualMs - shouldMs;
   const el       = document.getElementById('consistency-display');
   if (!el) return;
