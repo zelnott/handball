@@ -317,10 +317,7 @@
     </div>
   </div>
 
-  <div class="tw-section" id="tw-section" style="display:none;margin-top:4px;">
-    <div class="col-header" style="color:var(--blue);margin-bottom:5px;">🧤 Torwart</div>
-    <div id="tw-cards"></div>
-  </div>
+
 </div>
 
 <!-- ===================== RESULTS SCREEN ===================== -->
@@ -344,7 +341,7 @@
 // ============================================================
 // STATE
 // ============================================================
-const APP_VERSION = '4.2';
+const APP_VERSION = '4.3';
 const BUILD_TIME = '09.03.2026 21:08';
 let gameDurationMin = 40; // per half
 let fieldSize = 7;
@@ -1009,6 +1006,14 @@ function doSwap(outId, inId) {
     i.lastFieldStart=now;
   }
   o.onField=false; i.onField=true; i.stints++;
+  // If outgoing player was TW, transfer TW role to incoming player
+  const pOut = players.find(x=>x.id===outId);
+  const pIn  = players.find(x=>x.id===inId);
+  if (pOut && pIn) {
+    const half = gameState.half || 1;
+    if (half === 1 && pOut.tw1) { pOut.tw1=false; pIn.tw1=true; }
+    if (half === 2 && pOut.tw2) { pOut.tw2=false; pIn.tw2=true; }
+  }
   gameState.swapStep=null; gameState._outId=null; gameState._inId=null;
   hideHint(); renderGame();
 }
@@ -1038,7 +1043,7 @@ function renderGame() {
   document.getElementById('field-players').innerHTML = renderCards(field, true);
   document.getElementById('bench-players').innerHTML = renderCards(bench, false);
 
-  // No separate TW section — TW appears as normal bench card at bottom
+
 
   // Consistency bar
   updateConsistency();
