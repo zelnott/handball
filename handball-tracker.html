@@ -139,8 +139,6 @@
   /* TW SECTION */
   .tw-section{margin-bottom:8px;}
   .tw-card{background:rgba(99,155,255,.06);border:1.5px solid var(--blue);border-radius:12px;padding:8px 11px;position:relative;}
-  .player-card.tw-grayed{opacity:.45;filter:grayscale(.6);border-color:var(--border)!important;background:var(--surface)!important;}
-  .player-card.tw-grayed .player-number{color:var(--muted)!important;}
   .tw-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:2px;}
   /* RESULTS */
   .results-list{flex:1;overflow-y:auto;}
@@ -345,7 +343,8 @@
 // ============================================================
 // STATE
 // ============================================================
-const APP_VERSION = '3.1';
+const APP_VERSION = '4.0';
+const BUILD_TIME = '09.03.2026 21:01';
 let players = [];
 let gameDurationMin = 40; // per half
 let fieldSize = 7;
@@ -1029,8 +1028,8 @@ function renderGame() {
   document.getElementById('bench-count').textContent = bench.length;
   document.getElementById('clock-display').textContent = formatMs(getGameMs());
   document.getElementById('clock-display').className = 'clock-display'+(gameState.running?'':' paused');
-  document.getElementById('field-players').innerHTML = renderCards(field, true, []);
-  document.getElementById('bench-players').innerHTML = renderCards(bench, false, benchTwNow.map(p=>p.id));
+  document.getElementById('field-players').innerHTML = renderCards(field, true);
+  document.getElementById('bench-players').innerHTML = renderCards(bench, false);
 
   // TW info section — show current TW(s) as simple label below grid
   const twNowList = active.filter(p=>isTwNow(p));
@@ -1051,8 +1050,7 @@ function renderGame() {
   updateConsistency();
 
   // Attach tap handlers (field+bench only — TW not swappable via tap)
-  document.querySelectorAll('.player-card:not(.tw-grayed)').forEach(c => { c.onclick=()=>handlePlayerTap(parseInt(c.dataset.id)); });
-  document.querySelectorAll('.player-card.tw-grayed').forEach(c => { c.onclick=null; c.style.cursor='default'; });
+  document.querySelectorAll('.player-card').forEach(c => { c.onclick=()=>handlePlayerTap(parseInt(c.dataset.id)); });
   // Correction buttons
   document.querySelectorAll('.btn-corr').forEach(b => {
     b.onclick = e => { e.stopPropagation(); correctPlayer(parseInt(b.dataset.pid), parseInt(b.dataset.delta)); };
@@ -1099,9 +1097,9 @@ function renderTwCards(list) {
 
 function renderCards(list, onField, grayedIds=[]) {
   return list.map(p => {
-    const isGrayed = grayedIds.includes(p.id);
-    const sel    = !isGrayed && (gameState._outId===p.id || gameState._inId===p.id);
-    const cls    = `player-card ${onField?'on-field':''} ${sel?'selecting-out':''} ${isGrayed?'tw-grayed':''}`;
+    const isGrayed = false; // TW cards no longer grayed
+    const sel    = gameState._outId===p.id || gameState._inId===p.id;
+    const cls    = `player-card ${onField?'on-field':''} ${sel?'selecting-out':''}`;
     const cur    = getPlayerMs(p.id);
     const tgt    = calcTargetMs(p);
     const prog   = getPrognosisMs(p);
@@ -1116,10 +1114,7 @@ function renderCards(list, onField, grayedIds=[]) {
       ${onField?'<div class="status-dot"></div>':''}
       <div class="card-top">
         <div class="player-number">${p.number||'–'}</div>
-        ${isGrayed
-          ? `<span class="status-pill pill-blue" data-id="${p.id}"><span class="pill-dot"></span>🧤 Im Tor</span>`
-          : `<span class="status-pill pill-${sig}" data-id="${p.id}"><span class="pill-dot"></span>${label}</span>`
-        }
+        <span class="status-pill pill-${sig}" data-id="${p.id}"><span class="pill-dot"></span>${label}</span>
       </div>
       <div class="player-name-card">${p.name||'Spieler'}</div>
       <div style="display:flex;align-items:baseline;gap:3px;">
@@ -1127,12 +1122,12 @@ function renderCards(list, onField, grayedIds=[]) {
         <span class="time-soll" style="color:${tc};">/ ${formatMs(tgt)}</span>
       </div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:.92rem;font-weight:600;color:var(--muted);margin-top:3px;" class="player-prognosis" data-id="${p.id}">${progLabel}</div>
-      ${isGrayed ? '' : `<div class="corr-btns">
+      <div class="corr-btns">
         <button class="btn-corr minus" data-pid="${p.id}" data-delta="-30">−30s</button>
         <button class="btn-corr minus" data-pid="${p.id}" data-delta="-15">−15s</button>
         <button class="btn-corr plus"  data-pid="${p.id}" data-delta="15">+15s</button>
         <button class="btn-corr plus"  data-pid="${p.id}" data-delta="30">+30s</button>
-      </div>`}
+      </div>
     </div>`;
   }).join('');
 }
