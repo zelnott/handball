@@ -140,6 +140,10 @@
   .tw-section{margin-bottom:8px;}
   .tw-card{background:rgba(99,155,255,.06);border:1.5px solid var(--blue);border-radius:12px;padding:8px 11px;position:relative;}
   .player-card.tw-bench-card{background:rgba(99,155,255,.06)!important;border-color:var(--blue)!important;}
+  .player-card.tw-field-card{background:rgba(99,155,255,.07)!important;border-color:var(--blue)!important;}
+  .player-card.tw-field-card .player-number{color:var(--blue)!important;}
+  .player-card.tw-field-card .player-time{color:var(--blue)!important;}
+  .player-card.tw-field-card .status-dot{background:var(--blue)!important;}
   .tw-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:2px;}
   /* RESULTS */
   .results-list{flex:1;overflow-y:auto;}
@@ -341,7 +345,7 @@
 // ============================================================
 // STATE
 // ============================================================
-const APP_VERSION = '4.3';
+const APP_VERSION = '4.4';
 const BUILD_TIME = '09.03.2026 21:08';
 let gameDurationMin = 40; // per half
 let fieldSize = 7;
@@ -1098,8 +1102,8 @@ function renderCards(list, onField) {
   return list.map(p => {
     const isTw   = isTwNow(p);
     const sel    = gameState._outId===p.id || gameState._inId===p.id;
-    const twCls  = isTw ? 'tw-bench-card' : '';
-    const cls    = `player-card ${onField?'on-field':''} ${sel?'selecting-out':''} ${twCls}`;
+    const twCls  = isTw ? (onField ? 'tw-field-card' : 'tw-bench-card') : '';
+    const cls    = `player-card ${onField&&!isTw?'on-field':''} ${sel?'selecting-out':''} ${twCls}`;
     const cur    = getPlayerMs(p.id);
     const tgt    = calcTargetMs(p);
     const prog   = getPrognosisMs(p);
