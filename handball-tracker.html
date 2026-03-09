@@ -139,6 +139,7 @@
   /* TW SECTION */
   .tw-section{margin-bottom:8px;}
   .tw-card{background:rgba(99,155,255,.06);border:1.5px solid var(--blue);border-radius:12px;padding:8px 11px;position:relative;}
+  .player-card.tw-bench-card{background:rgba(99,155,255,.06)!important;border-color:var(--blue)!important;}
   .tw-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:2px;}
   /* RESULTS */
   .results-list{flex:1;overflow-y:auto;}
@@ -343,9 +344,8 @@
 // ============================================================
 // STATE
 // ============================================================
-const APP_VERSION = '4.0';
-const BUILD_TIME = '09.03.2026 21:01';
-let players = [];
+const APP_VERSION = '4.1';
+const BUILD_TIME = '09.03.2026 21:08'; = [];
 let gameDurationMin = 40; // per half
 let fieldSize = 7;
 let gameState = {
@@ -1011,18 +1011,15 @@ function hideHint()   { document.getElementById('hint-bar').classList.remove('vi
 // ============================================================
 function renderGame() {
   const active = getActivePlayers();
-  const twPlayers = active.filter(p => p.tw1 || p.tw2);
-
-  // Field: all players currently on field
-  const field  = active.filter(p=>gameState.playerData[p.id]?.onField)
+  // Field: sorted ascending by gap (most behind = top)
+  const field = active.filter(p=>gameState.playerData[p.id]?.onField)
     .sort((a,b)=>(calcTargetMs(a)-getPlayerMs(a.id))-(calcTargetMs(b)-getPlayerMs(b.id)));
-  // Bench: split into normal (swappable) and TW-in-goal-now (grayed, bottom)
+  // Bench: normal players sorted by gap desc, TW always at bottom
   const benchAll    = active.filter(p=>!gameState.playerData[p.id]?.onField);
   const benchNormal = benchAll.filter(p=>!isTwNow(p))
     .sort((a,b)=>(calcTargetMs(b)-getPlayerMs(b.id))-(calcTargetMs(a)-getPlayerMs(a.id)));
-  const benchTwNow  = benchAll.filter(p=>isTwNow(p))
-    .sort((a,b)=>(calcTargetMs(b)-getPlayerMs(b.id))-(calcTargetMs(a)-getPlayerMs(a.id)));
-  const bench = [...benchNormal, ...benchTwNow];
+  const benchTw     = benchAll.filter(p=>isTwNow(p));
+  const bench = [...benchNormal, ...benchTw];
 
   document.getElementById('field-count').textContent = field.length;
   document.getElementById('bench-count').textContent = bench.length;
@@ -1031,20 +1028,7 @@ function renderGame() {
   document.getElementById('field-players').innerHTML = renderCards(field, true);
   document.getElementById('bench-players').innerHTML = renderCards(bench, false);
 
-  // TW info section — show current TW(s) as simple label below grid
-  const twNowList = active.filter(p=>isTwNow(p));
-  const twSec = document.getElementById('tw-section');
-  const twCards = document.getElementById('tw-cards');
-  if (twNowList.length) {
-    twSec.style.display = '';
-    twCards.innerHTML = twNowList.map(p=>`<div class="tw-card">
-      <span class="tw-badge">🧤 ${(p.tw1&&p.tw2)?'TW HZ1+2':p.tw1?'TW HZ1':'TW HZ2'}</span>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;margin-left:8px;">${p.number||'–'} ${p.name||''}</span>
-    </div>`).join('');
-  } else {
-    twSec.style.display = 'none';
-    twCards.innerHTML = '';
-  }
+  // No separate TW section — TW appears as normal bench card at bottom
 
   // Consistency bar
   updateConsistency();
@@ -1095,11 +1079,12 @@ function renderTwCards(list) {
   }).join('');
 }
 
-function renderCards(list, onField, grayedIds=[]) {
+function renderCards(list, onField) {
   return list.map(p => {
-    const isGrayed = false; // TW cards no longer grayed
+    const isTw   = isTwNow(p);
     const sel    = gameState._outId===p.id || gameState._inId===p.id;
-    const cls    = `player-card ${onField?'on-field':''} ${sel?'selecting-out':''}`;
+    const twCls  = isTw ? 'tw-bench-card' : '';
+    const cls    = `player-card ${onField?'on-field':''} ${sel?'selecting-out':''} ${twCls}`;
     const cur    = getPlayerMs(p.id);
     const tgt    = calcTargetMs(p);
     const prog   = getPrognosisMs(p);
@@ -1113,8 +1098,11 @@ function renderCards(list, onField, grayedIds=[]) {
     return `<div class="${cls}" data-id="${p.id}">
       ${onField?'<div class="status-dot"></div>':''}
       <div class="card-top">
-        <div class="player-number">${p.number||'–'}</div>
-        <span class="status-pill pill-${sig}" data-id="${p.id}"><span class="pill-dot"></span>${label}</span>
+        <div class="player-number" style="${isTw?'color:var(--blue);':''}">${p.number||'–'}</div>
+        ${isTw
+          ? `<span class="status-pill pill-blue" data-id="${p.id}"><span class="pill-dot" style="background:var(--blue);"></span>🧤 ${(p.tw1&&p.tw2)?'HZ1+2':p.tw1?'HZ1':'HZ2'}</span>`
+          : `<span class="status-pill pill-${sig}" data-id="${p.id}"><span class="pill-dot"></span>${label}</span>`
+        }
       </div>
       <div class="player-name-card">${p.name||'Spieler'}</div>
       <div style="display:flex;align-items:baseline;gap:3px;">
