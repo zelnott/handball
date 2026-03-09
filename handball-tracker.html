@@ -815,15 +815,15 @@ function getPlayerMs(id) {
   const pd = gameState.playerData[id];
   if (!pd) return 0;
   const p = players.find(x => x.id === id);
-  // TW active this half: pd.fieldMs has committed time + live accrual since half/game start
-  if (p && isTwNow(p) && gameState.running) {
-    return pd.fieldMs + (Date.now() - (pd.twHalfStart || gameState.lastStart));
-  }
-  // Normal field player running
+  // On field as normal player (includes TW who was swapped in as field player)
   if (pd.onField && gameState.running) {
     return pd.fieldMs + (Date.now() - (pd.lastFieldStart || gameState.lastStart));
   }
-  // Paused or bench: return committed fieldMs only
+  // TW active this half, sitting on bench (not yet swapped in as field player)
+  if (p && isTwNow(p) && pd.twHalfStart && gameState.running) {
+    return pd.fieldMs + (Date.now() - pd.twHalfStart);
+  }
+  // Paused or bench without active TW role: return committed fieldMs
   return pd.fieldMs;
 }
 
@@ -944,11 +944,6 @@ function tickClock() {
       pill.innerHTML = `<span class="pill-dot"></span>${SIGNAL_LABELS[sig]}`;
     }
   });
-  // update TW card times
-  getTwPlayers().forEach(p => {
-    const el = document.querySelector(`.player-time[data-id="${p.id}"]`);
-    if (el) el.textContent = formatMs(getPlayerMs(p.id));
-  });
   updateConsistency();
   checkTimeTriggers();
   if (tickCount % 4 === 0) renderGame();
@@ -1020,9 +1015,28 @@ function handlePlayerTap(id) {
 }
 function doSwap(outId, inId) {
   const now=Date.now(), o=gameState.playerData[outId], i=gameState.playerData[inId];
+  const pIn  = players.find(x=>x.id===inId);
+  const pOut = players.find(x=>x.id===outId);
   if (gameState.running) {
-    if (o.lastFieldStart) { o.fieldMs+=now-o.lastFieldStart; o.lastFieldStart=null; }
+    // Commit outgoing field player
+    if (o.lastFieldStart && pOut && !pOut.tw1 && !pOut.tw2) {
+      o.fieldMs+=now-o.lastFieldStart; o.lastFieldStart=null;
+    }
+    // Commit outgoing TW if they were in goal
+    if (pOut && isTwNow(pOut) && o.twHalfStart) {
+      o.fieldMs+=now-o.twHalfStart; o.twHalfStart=null;
+    }
+    // Incoming player starts field timer
     i.lastFieldStart=now;
+    // If incoming was TW-active, commit their TW time first and clear twHalfStart
+    if (pIn && isTwNow(pIn) && i.twHalfStart) {
+      i.fieldMs+=now-i.twHalfStart; i.twHalfStart=null;
+    }
+  } else {
+    // Paused: if incoming TW, commit their accrued TW time
+    if (pIn && isTwNow(pIn) && i.twHalfStart) {
+      i.twHalfStart=null; // TW time already in fieldMs (was committed at pause)
+    }
   }
   o.onField=false; i.onField=true; i.stints++;
   gameState.swapStep=null; gameState._outId=null; gameState._inId=null;
@@ -1083,8 +1097,13 @@ function renderGame() {
 function updateConsistency() {
   const gameMs  = getGameMs();
   const shouldMs = gameMs * fieldSize; // expected total = elapsed * field slots
-  // Include ALL players (field + TW) — TW time comes from getPlayerMs automatically
-  const actualMs = getActivePlayers().reduce((s,p)=>s+getPlayerMs(p.id),0);
+  // Only non-TW players count for field balance
+  // TW time is separate (goalkeeper doesn't count as field slot)
+  const nonTwPlayers = getActivePlayers().filter(p => {
+    // Exclude players who are TW this half AND not currently on field as field player
+    return !(isTwNow(p) && !gameState.playerData[p.id]?.onField);
+  });
+  const actualMs = nonTwPlayers.reduce((s,p)=>s+getPlayerMs(p.id),0);
   const diff     = actualMs - shouldMs;
   const el       = document.getElementById('consistency-display');
   if (!el) return;
