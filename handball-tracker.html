@@ -757,7 +757,10 @@ document.getElementById('btn-start-game').onclick = () => {
   gameState = { running:false, gameMs:0, lastStart:null, playerData:{}, swapStep:null, _outId:null, _inId:null, half:1, halfShownAlert:false };
   players.forEach(p => { gameState.playerData[p.id] = { fieldMs:0, lastFieldStart:null, onField:false, stints:0 }; });
   // Only non-TW players go on field initially
-  getActivePlayers().filter(p=>!p.tw1&&!p.tw2).slice(0, fieldSize).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
+  // TW HZ1 starts on field automatically; fills one of the field slots
+  const twHz1 = getActivePlayers().filter(p=>p.tw1);
+  twHz1.forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
+  getActivePlayers().filter(p=>!p.tw1&&!p.tw2).slice(0, Math.max(0, fieldSize - twHz1.length)).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
   document.getElementById('game-opponent').value = '';
   document.getElementById('game-date').value = today();
   enterGameScreen();
