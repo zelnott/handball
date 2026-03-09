@@ -228,7 +228,7 @@
       <div class="setting-sub">Minuten (Halbzeit)</div>
     </div>
     <div class="setting-block">
-      <label>Spieler auf Feld</label>
+      <label>Feldspieler inkl. TW</label>
       <input type="number" id="field-size" value="7" min="1" max="11">
       <div class="setting-sub" id="base-target-display">Basis-Soll: – min</div>
     </div>
@@ -344,7 +344,7 @@
 // ============================================================
 // STATE
 // ============================================================
-const APP_VERSION = '4.1';
+const APP_VERSION = '4.2';
 const BUILD_TIME = '09.03.2026 21:08';
 let gameDurationMin = 40; // per half
 let fieldSize = 7;
@@ -498,8 +498,10 @@ function getTwPlayers()    { return getActivePlayers().filter(p => p.tw1 || p.tw
 function getBaseSollMin() {
   const dur = parseFloat(document.getElementById('game-duration')?.value) || gameDurationMin;
   const fs  = parseFloat(document.getElementById('field-size')?.value)    || fieldSize;
+  const twCount = getActivePlayers().filter(p=>p.tw1||p.tw2).length;
+  const fieldSlots = Math.max(1, fs - twCount);
   const a   = getActivePlayers().filter(p => !p.tw1 && !p.tw2 && (p.name.trim() || p.number.toString().trim()));
-  return (dur * 2 * fs) / Math.max(a.length, 1);
+  return (dur * 2 * fieldSlots) / Math.max(a.length, 1);
 }
 
 // TW helpers
@@ -522,15 +524,19 @@ function calcTargetMs(player, forSetup) {
     : getActivePlayers();
 
   // For a given half (1 or 2): return this player's target minutes
+  // fieldSize = total on field incl. TW. TW takes 1 slot → field players share (fs - twCount) slots
   function halfTarget(half) {
     const isTwThisHalf = half === 1 ? player.tw1 : player.tw2;
     if (isTwThisHalf) return dur * 60000; // TW: full half duration
-    // Field player this half: weighted share among all non-TW players this half
+    // Count TW slots this half
+    const twCount = allActive.filter(p => half === 1 ? p.tw1 : p.tw2).length;
+    const fieldSlots = Math.max(1, fs - twCount);
+    // Field players this half
     const pool = allActive.filter(p => half === 1 ? !p.tw1 : !p.tw2);
     if (!pool.length) return 0;
     const sumW = pool.reduce((s, p) => s + Math.max(0, 1 + (p.pctAdjust || 0) / 100), 0);
     const w    = Math.max(0, 1 + (player.pctAdjust || 0) / 100);
-    return sumW > 0 ? (w / sumW) * dur * fs * 60000 : 0;
+    return sumW > 0 ? (w / sumW) * dur * fieldSlots * 60000 : 0;
   }
 
   return halfTarget(1) + halfTarget(2);
@@ -757,10 +763,11 @@ document.getElementById('btn-start-game').onclick = () => {
   gameState = { running:false, gameMs:0, lastStart:null, playerData:{}, swapStep:null, _outId:null, _inId:null, half:1, halfShownAlert:false };
   players.forEach(p => { gameState.playerData[p.id] = { fieldMs:0, lastFieldStart:null, onField:false, stints:0 }; });
   // Only non-TW players go on field initially
-  // TW HZ1 starts on field automatically; fills one of the field slots
+  // fieldSize = total players on field incl. TW
+  // TW HZ1 goes on field first, then fill remaining slots with non-TW players
   const twHz1 = getActivePlayers().filter(p=>p.tw1);
   twHz1.forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
-  getActivePlayers().filter(p=>!p.tw1&&!p.tw2).slice(0, Math.max(0, fieldSize - twHz1.length)).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
+  getActivePlayers().filter(p=>!p.tw1&&!p.tw2).slice(0, fieldSize - twHz1.length).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
   document.getElementById('game-opponent').value = '';
   document.getElementById('game-date').value = today();
   enterGameScreen();
@@ -1046,7 +1053,7 @@ function renderGame() {
 
 function updateConsistency() {
   const gameMs  = getGameMs();
-  const shouldMs = gameMs * fieldSize; // expected total = elapsed * field slots
+  const shouldMs = gameMs * fieldSize; // fieldSize incl. TW = total field slots
   // Consistency: sum of all field+bench non-TW players
   const actualMs = getActivePlayers()
     .filter(p => !isTwNow(p) || gameState.playerData[p.id]?.onField)
