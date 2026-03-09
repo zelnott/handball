@@ -420,8 +420,14 @@ function saveGameState(silent) {
     players.forEach(p => {
       const pd = gameState.playerData[p.id];
       if (!pd) return;
-      const isTwPlayer = players.find(x=>x.id===p.id && (x.tw1||x.tw2));
-      const fMs = (!isTwPlayer && pd.onField && pd.lastFieldStart && gameState.running) ? pd.fieldMs+(now-pd.lastFieldStart) : pd.fieldMs;
+      const pp = players.find(x=>x.id===p.id);
+      let fMs = pd.fieldMs;
+      if (gameState.running) {
+        if (pd.onField && pd.lastFieldStart && pp && !pp.tw1 && !pp.tw2)
+          fMs += now - pd.lastFieldStart;
+        if (pp && isTwNow(pp) && pd.twHalfStart)
+          fMs += now - pd.twHalfStart;
+      }
       snap.playerData[p.id] = {...pd, fieldMs: fMs, lastFieldStart: null};
     });
     const opponent = (document.getElementById('game-opponent')?.value || '').trim();
@@ -467,7 +473,7 @@ function restoreSavedGame() {
     if (!gameState.halfShownAlert) gameState.halfShownAlert = false;
     players.forEach(p => {
       if (!gameState.playerData[p.id])
-        gameState.playerData[p.id] = { fieldMs: 0, lastFieldStart: null, onField: false, stints: 0 };
+        gameState.playerData[p.id] = { fieldMs: 0, lastFieldStart: null, twHalfStart: null, onField: false, stints: 0 };
     });
     return true;
   } catch(e) { return false; }
@@ -557,10 +563,10 @@ function getStatusSignal(p) {
   const cur  = getPlayerMs(p.id);
   const prog = getPrognosisMs(p);
   if (tgt <= 0) return 'green';
-  if (cur >= tgt)              return 'blue';   // already over target
-  if (prog < tgt)              return 'red';    // target no longer reachable
-  if (prog < tgt * 1.1)       return 'yellow'; // reachable but <10% buffer above target
-  return 'green';                               // comfortable buffer
+  if (cur >= tgt)             return 'blue';   // already over target
+  if (prog < tgt * 0.95)     return 'red';    // max reachable < 95% of target
+  if (prog < tgt * 1.05)     return 'yellow'; // reachable but within 5% buffer
+  return 'green';
 }
 
 const SIGNAL_LABELS = {
@@ -756,7 +762,7 @@ document.getElementById('btn-start-game').onclick = () => {
   saveSetup();
   // fresh game state
   gameState = { running:false, gameMs:0, lastStart:null, playerData:{}, swapStep:null, _outId:null, _inId:null, half:1, halfShownAlert:false };
-  players.forEach(p => { gameState.playerData[p.id] = { fieldMs:0, lastFieldStart:null, onField:false, stints:0 }; });
+  players.forEach(p => { gameState.playerData[p.id] = { fieldMs:0, lastFieldStart:null, twHalfStart:null, onField:false, stints:0 }; });
   // Only non-TW players go on field initially
   getActivePlayers().filter(p=>!p.tw1&&!p.tw2).slice(0, fieldSize).forEach(p => { gameState.playerData[p.id].onField=true; gameState.playerData[p.id].stints=1; });
   document.getElementById('game-opponent').value = '';
@@ -808,20 +814,16 @@ function getGameMs() {
 function getPlayerMs(id) {
   const pd = gameState.playerData[id];
   if (!pd) return 0;
-  // Normal field player
-  if (pd.onField) {
-    return gameState.running ? pd.fieldMs+(Date.now()-(pd.lastFieldStart||gameState.lastStart)) : pd.fieldMs;
-  }
-  // TW: accumulate half-durations automatically
   const p = players.find(x => x.id === id);
-  if (p && (p.tw1 || p.tw2)) {
-    const halfMs  = gameDurationMin * 60000;
-    const gameMs  = gameState.running ? gameState.gameMs+(Date.now()-gameState.lastStart) : gameState.gameMs;
-    let twMs = 0;
-    if (p.tw1) twMs += Math.min(halfMs, gameMs);               // HZ1 portion
-    if (p.tw2) twMs += Math.max(0, Math.min(halfMs, gameMs - halfMs)); // HZ2 portion
-    return twMs + pd.fieldMs; // pd.fieldMs holds any time as field player
+  // TW active this half: pd.fieldMs has committed time + live accrual since half/game start
+  if (p && isTwNow(p) && gameState.running) {
+    return pd.fieldMs + (Date.now() - (pd.twHalfStart || gameState.lastStart));
   }
+  // Normal field player running
+  if (pd.onField && gameState.running) {
+    return pd.fieldMs + (Date.now() - (pd.lastFieldStart || gameState.lastStart));
+  }
+  // Paused or bench: return committed fieldMs only
   return pd.fieldMs;
 }
 
@@ -839,12 +841,14 @@ function checkTimeTriggers() {
 
   if (gameState.half === 1 && elapsed >= halfMs && !gameState.halfShownAlert) {
     gameState.halfShownAlert = true;
-    // Auto-pause at halftime
+    // Auto-pause at halftime (triggerPause commits TW1 time into pd.fieldMs)
     triggerPause();
     gameState.half = 2;
     updateClockPhaseLabel();
     document.getElementById('halftime-banner').classList.add('visible');
     showToast('⏸ Halbzeit!','var(--blue)');
+    // Reset twHalfStart for TW2 (will be set on next start)
+    players.forEach(p => { if (gameState.playerData[p.id]) gameState.playerData[p.id].twHalfStart = null; });
   } else if (gameState.half === 2 && elapsed >= fullMs) {
     // Auto-stop at full time
     triggerPause();
@@ -866,9 +870,13 @@ function triggerPause() {
   gameState.gameMs += now - gameState.lastStart; gameState.running = false;
   players.forEach(p => {
     const pd = gameState.playerData[p.id];
-    // Only commit time for real field players (not TW — their time is derived from gameMs)
+    // Commit field player time
     if (pd?.onField && pd.lastFieldStart && !p.tw1 && !p.tw2) {
-      pd.fieldMs += now-pd.lastFieldStart; pd.lastFieldStart = null;
+      pd.fieldMs += now - pd.lastFieldStart; pd.lastFieldStart = null;
+    }
+    // Commit TW time if active this half
+    if (isTwNow(p) && pd.twHalfStart) {
+      pd.fieldMs += now - pd.twHalfStart; pd.twHalfStart = null;
     }
   });
   clearInterval(clockInterval);
@@ -903,7 +911,11 @@ document.getElementById('btn-clock-start').onclick = () => {
   if (gameState.half === 2) document.getElementById('halftime-banner').classList.remove('visible');
   const now = Date.now();
   gameState.running = true; gameState.lastStart = now;
-  players.forEach(p => { const pd=gameState.playerData[p.id]; if (pd?.onField && !pd.lastFieldStart && !p.tw1 && !p.tw2) pd.lastFieldStart=now; });
+  players.forEach(p => {
+    const pd = gameState.playerData[p.id];
+    if (pd?.onField && !pd.lastFieldStart && !p.tw1 && !p.tw2) pd.lastFieldStart = now;
+    if (isTwNow(p) && !pd.twHalfStart) pd.twHalfStart = now;
+  });
   document.getElementById('clock-block').classList.add('running');
   clockInterval = setInterval(tickClock, 500);
   renderGame();
