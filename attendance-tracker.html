@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Trainings-Tracker</title>
+<!-- PWA -->
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIlRyYWluaW5ncy1UcmFja2VyIiwgInNob3J0X25hbWUiOiAiVHJhaW5pbmciLCAiZGVzY3JpcHRpb24iOiAiQW53ZXNlbmhlaXRzZXJmYXNzdW5nIGZ1ZXIgVHJhaW5pbmdzZWluaGVpdGVuIiwgInN0YXJ0X3VybCI6ICIuIiwgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjExMTciLCAidGhlbWVfY29sb3IiOiAiI2U4MzgyYiIsICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsICJpY29ucyI6IFt7InNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lJSFpwWlhkQ2IzZzlJakFnTUNBMU1USWdOVEV5SWo0S0lDQThjbVZqZENCM2FXUjBhRDBpTlRFeUlpQm9aV2xuYUhROUlqVXhNaUlnY25nOUlqRXdNQ0lnWm1sc2JEMGlJekJtTVRFeE55SXZQZ29nSUR4eVpXTjBJSGc5SWpBaUlIazlJakFpSUhkcFpIUm9QU0kxTVRJaUlHaGxhV2RvZEQwaU9DSWdjbmc5SWpRaUlHWnBiR3c5SWlObE9ETTRNbUlpTHo0S0lDQThkR1Y0ZENCNFBTSXlOVFlpSUhrOUlqSTVNQ0lnWm05dWRDMW1ZVzFwYkhrOUlrRnlhV0ZzSUVKc1lXTnJMQ0J6WVc1ekxYTmxjbWxtSWlCbWIyNTBMWGRsYVdkb2REMGlPVEF3SWlCbWIyNTBMWE5wZW1VOUlqRTRNQ0lnWm1sc2JEMGlJMll3WmpKbVppSWdkR1Y0ZEMxaGJtTm9iM0k5SW0xcFpHUnNaU0lnWkc5dGFXNWhiblF0WW1GelpXeHBibVU5SW0xcFpHUnNaU0lnYkdWMGRHVnlMWE53WVdOcGJtYzlJaTA0SWo1VVZEd3ZkR1Y0ZEQ0S0lDQThZMmx5WTJ4bElHTjRQU0l6T1RBaUlHTjVQU0l4TmpBaUlISTlJak0ySWlCbWFXeHNQU0lqWlRnek9ESmlJaTgrQ2p3dmMzWm5QZz09IiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIn1dfQ==">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Training">
+<meta name="theme-color" content="#e8382b">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjEwMCIgZmlsbD0iIzBmMTExNyIvPgogIDxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI1MTIiIGhlaWdodD0iOCIgcng9IjQiIGZpbGw9IiNlODM4MmIiLz4KICA8dGV4dCB4PSIyNTYiIHk9IjI5MCIgZm9udC1mYW1pbHk9IkFyaWFsIEJsYWNrLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iOTAwIiBmb250LXNpemU9IjE4MCIgZmlsbD0iI2YwZjJmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgbGV0dGVyLXNwYWNpbmc9Ii04Ij5UVDwvdGV4dD4KICA8Y2lyY2xlIGN4PSIzOTAiIGN5PSIxNjAiIHI9IjM2IiBmaWxsPSIjZTgzODJiIi8+Cjwvc3ZnPg==">
+<style>
+:root{
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#222632; --border:#2c3040;
+  --text:#f0f2ff; --muted:#8a8fa3; --accent:#e8382b; --green:#22c55e;
+  --blue:#639bff; --yellow:#ffb700;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Barlow',Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+.screen{padding:14px 14px 90px;max-width:600px;margin:0 auto;min-height:100vh;}
+.hidden{display:none!important;}
+h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.7rem;margin:4px 0 2px;letter-spacing:-.01em;}
+.subtitle{color:var(--muted);font-size:.82rem;margin-bottom:14px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;font-weight:600;}
+input,select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 11px;font-size:.95rem;font-family:inherit;margin-bottom:10px;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+.btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.92rem;padding:11px 16px;transition:all .12s;text-align:center;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;width:100%;}
+.btn-secondary{background:var(--surface2);width:100%;}
+.btn-row{display:flex;gap:8px;margin-top:10px;}
+.btn-row .btn{flex:1;}
+.btn-icon{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;padding:6px 9px;font-size:.85rem;}
+.btn-icon.danger{color:var(--accent);border-color:var(--accent);}
+.btn-icon.active-toggle{color:var(--green);border-color:var(--green);}
+/* NAV */
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:6px 4px env(safe-area-inset-bottom,6px);max-width:600px;margin:0 auto;z-index:50;}
+.tab{flex:1;text-align:center;padding:8px 2px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.02em;cursor:pointer;border-radius:10px;}
+.tab.active{color:var(--accent);background:rgba(232,56,43,.08);}
+.tab-icon{font-size:1.2rem;display:block;margin-bottom:2px;}
+/* PLAYER LIST */
+.player-row{display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:10px;padding:9px 10px;margin-bottom:7px;}
+.player-row input{margin:0;flex:1;padding:8px 9px;font-size:.9rem;}
+.player-row input.num-input{flex:0 0 54px;text-align:center;}
+/* CALENDAR LIST */
+.training-item{background:var(--surface2);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.training-item:active{transform:scale(.985);}
+.training-date{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.05rem;}
+.training-sub{color:var(--muted);font-size:.78rem;margin-top:1px;}
+.training-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.7rem;background:var(--border);color:var(--muted);border-radius:6px;padding:3px 8px;}
+.training-badge.done{background:rgba(34,197,94,.15);color:var(--green);}
+/* ATTENDANCE GRID */
+.att-row{background:var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.att-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.98rem;margin-bottom:7px;}
+.att-options{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:5px;}
+.att-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--muted);font-size:.6rem;font-weight:700;padding:7px 2px;text-align:center;cursor:pointer;line-height:1.2;font-family:'Barlow Condensed',sans-serif;}
+.att-btn:active{transform:scale(.95);}
+.att-btn.sel-good{background:rgba(34,197,94,.18);border-color:var(--green);color:var(--green);}
+.att-btn.sel-mid{background:rgba(255,183,0,.18);border-color:var(--yellow);color:var(--yellow);}
+.att-btn.sel-bad{background:rgba(232,56,43,.12);border-color:var(--accent);color:var(--accent);}
+.att-btn.sel-exc1{background:rgba(99,155,255,.18);border-color:var(--blue);color:var(--blue);}
+.att-btn.sel-exc2{background:rgba(99,155,255,.1);border-color:var(--blue);color:var(--blue);}
+.att-btn.sel-unexc{background:rgba(232,56,43,.22);border-color:var(--accent);color:#fff;}
+/* RESULTS TABLE */
+.results-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.results-table th{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.62rem;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);text-align:center;padding:6px 3px;border-bottom:1px solid var(--border);}
+.results-table th.th-name{text-align:left;}
+.results-table td{text-align:center;padding:7px 3px;border-bottom:1px solid var(--border);font-weight:600;}
+.results-table td.td-name{text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;}
+.results-table td.pct{font-weight:800;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 18px;font-size:.85rem;font-weight:700;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none;}
+.toast.show{opacity:1;}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;}
+.confirm-overlay.hidden{display:none;}
+.confirm-box{background:var(--surface);border-radius:16px;padding:20px;max-width:340px;width:100%;}
+.confirm-text{font-size:.92rem;line-height:1.4;margin-bottom:16px;}
+.confirm-btns{display:flex;gap:8px;}
+.confirm-btns .btn{flex:1;}
+.empty-state{text-align:center;color:var(--muted);padding:30px 10px;font-size:.88rem;}
+.fab{position:fixed;bottom:80px;right:18px;background:var(--accent);color:#fff;border:none;border-radius:50%;width:54px;height:54px;font-size:1.6rem;box-shadow:0 4px 14px rgba(0,0,0,.4);cursor:pointer;z-index:40;}
+.fab:active{transform:scale(.93);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:100;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--surface);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));width:100%;max-height:85vh;overflow-y:auto;}
+.modal h2{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.2rem;margin:0 0 12px;}
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.checkbox-row input[type=checkbox]{width:auto;margin:0;}
+.checkbox-row label{margin:0;color:var(--text);font-weight:500;font-size:.9rem;}
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px;}
+.day-toggle{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 0;text-align:center;font-size:.72rem;font-weight:700;cursor:pointer;color:var(--muted);}
+.day-toggle.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- ===================== PLAYERS SCREEN ===================== -->
+<div class="screen" id="screen-players">
+  <h1>👥 Spieler</h1>
+  <div class="subtitle">Kader verwalten · <span style="color:var(--muted);font-size:.72rem;">v1.3 · 24.06.2026 21:49</span></div>
+  <div class="card">
+    <div id="player-list"></div>
+    <button class="btn btn-secondary" id="btn-add-player" style="margin-top:4px;">+ Spieler hinzufügen</button>
+  </div>
+</div>
+
+<!-- ===================== CALENDAR SCREEN ===================== -->
+<div class="screen hidden" id="screen-calendar">
+  <h1>📅 Trainings</h1>
+  <div class="subtitle">Termine verwalten</div>
+  <div id="training-list"></div>
+  <div class="empty-state hidden" id="training-empty">Noch keine Trainings angelegt.<br>Tippe auf + um eines hinzuzufügen.</div>
+  <button class="fab" id="btn-fab-add-training">+</button>
+</div>
+
+<!-- ===================== ATTENDANCE SCREEN (per training) ===================== -->
+<div class="screen hidden" id="screen-attendance">
+  <button class="btn-icon" id="btn-back-to-calendar" style="margin-bottom:10px;">← Zurück</button>
+  <h1 id="att-screen-title">Training</h1>
+  <div class="subtitle" id="att-screen-sub"></div>
+  <div id="attendance-list"></div>
+</div>
+
+<!-- ===================== RESULTS SCREEN ===================== -->
+<div class="screen hidden" id="screen-results">
+  <h1>📊 Auswertung</h1>
+  <div class="subtitle">Zeitraum auswählen</div>
+  <div class="card">
+    <label>Von</label>
+    <input type="date" id="res-from">
+    <label>Bis</label>
+    <input type="date" id="res-to">
+    <button class="btn btn-primary" id="btn-run-results">Auswerten</button>
+  </div>
+  <div class="card hidden" id="results-card">
+    <div class="section-title" id="results-meta"></div>
+    <div style="overflow-x:auto;">
+      <table class="results-table" id="results-table"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TAB BAR ===================== -->
+<div class="tabbar">
+  <div class="tab active" data-screen="players"><span class="tab-icon">👥</span>Spieler</div>
+  <div class="tab" data-screen="calendar"><span class="tab-icon">📅</span>Training</div>
+  <div class="tab" data-screen="results"><span class="tab-icon">📊</span>Auswertung</div>
+</div>
+
+<!-- ===================== MODAL: ADD/EDIT TRAINING ===================== -->
+<div class="modal-overlay hidden" id="modal-training">
+  <div class="modal">
+    <h2 id="modal-training-title">Neues Training</h2>
+    <label>Datum</label>
+    <input type="date" id="tr-date">
+    <label>Uhrzeit (optional)</label>
+    <input type="time" id="tr-time">
+    <label>Bezeichnung (optional)</label>
+    <input type="text" id="tr-label" placeholder="z.B. Halle 2">
+
+    <div id="tr-series-section">
+      <div class="checkbox-row">
+        <input type="checkbox" id="tr-is-series">
+        <label for="tr-is-series">Serientermin anlegen</label>
+      </div>
+      <div id="tr-series-options" class="hidden">
+        <label>Wochentage</label>
+        <div class="days-grid" id="tr-days-grid">
+          <div class="day-toggle" data-day="1">Mo</div>
+          <div class="day-toggle" data-day="2">Di</div>
+          <div class="day-toggle" data-day="3">Mi</div>
+          <div class="day-toggle" data-day="4">Do</div>
+          <div class="day-toggle" data-day="5">Fr</div>
+          <div class="day-toggle" data-day="6">Sa</div>
+          <div class="day-toggle" data-day="0">So</div>
+        </div>
+        <label>Enddatum der Serie</label>
+        <input type="date" id="tr-series-end">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="btn-cancel-training">Abbrechen</button>
+      <button class="btn btn-primary" id="btn-save-training">Speichern</button>
+    </div>
+    <button class="btn-icon danger hidden" id="btn-delete-training" style="width:100%;margin-top:8px;padding:11px;">Training löschen</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="confirm-overlay hidden" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-text" id="confirm-text"></div>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" id="confirm-cancel">Abbrechen</button>
+      <button class="btn btn-primary" id="confirm-ok">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// APP VERSION
+// ============================================================
+const APP_VERSION = '1.3';
+const BUILD_TIME = '21.06.2026 06:22';
+
+// ============================================================
+// STATE
+// ============================================================
+let players = [];      // { id, number, name, active }
+let trainings = [];    // { id, date: 'YYYY-MM-DD', time, label, attendance: { playerId: 'cat' } }
+let editingTrainingId = null;
+
+const CATEGORIES = {
+  present:    { label: 'Anwesend',     short: 'Anwesend',   cls: 'sel-good',  points: 100 },
+  presentW:   { label: 'Anwesend ⚠',   short: 'Anwesend ⚠', cls: 'sel-mid',   points: 50  },
+  excused:    { label: 'Entschuldigt', short: 'Entsch.',    cls: 'sel-exc1',  points: null }, // excluded from score/quotes
+  unregistered: { label: 'Abgemeldet', short: 'Abgemeldet', cls: 'sel-exc2',  points: 0   },
+  unexcused:  { label: 'Unentschuldigt', short: 'Unentsch.', cls: 'sel-unexc', points: -30 },
+};
+const CAT_ORDER = ['present','presentW','excused','unregistered','unexcused'];
+
+function uid() { return Date.now() + Math.floor(Math.random()*10000); }
+function defaultAttendance() {
+  const att = {};
+  players.forEach(p => { att[p.id] = 'present'; });
+  return att;
+}
+function todayStr() { const d=new Date(); return d.toISOString().slice(0,10); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function showConfirm(text, onConfirm) {
+  const overlay = document.getElementById('confirm-overlay');
+  document.getElementById('confirm-text').textContent = text;
+  overlay.classList.remove('hidden');
+  const okBtn = document.getElementById('confirm-ok');
+  const cancelBtn = document.getElementById('confirm-cancel');
+  function cleanup() { overlay.classList.add('hidden'); okBtn.onclick=null; cancelBtn.onclick=null; }
+  okBtn.onclick = () => { cleanup(); onConfirm(); };
+  cancelBtn.onclick = () => { cleanup(); };
+}
+
+// ============================================================
+// PERSISTENCE
+// ============================================================
+function saveAll() {
+  localStorage.setItem('att_players', JSON.stringify(players));
+  localStorage.setItem('att_trainings', JSON.stringify(trainings));
+  localStorage.setItem('att_v', APP_VERSION);
+}
+function loadAll() {
+  try { players   = JSON.parse(localStorage.getItem('att_players'))   || []; } catch(e) { players = []; }
+  try { trainings = JSON.parse(localStorage.getItem('att_trainings')) || []; } catch(e) { trainings = []; }
+}
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchScreen(tab.dataset.screen));
+});
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('screen-'+name).classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.screen===name));
+}
+
+// ============================================================
+// PLAYERS
+// ============================================================
+function renderPlayers() {
+  const list = document.getElementById('player-list');
+  if (!players.length) {
+    list.innerHTML = '<div class="empty-state">Noch keine Spieler angelegt.</div>';
+    return;
+  }
+  list.innerHTML = players.map(p => `
+    <div class="player-row" data-id="${p.id}">
+      <input type="text" class="num-input" data-field="number" placeholder="#" value="${p.number||''}">
+      <input type="text" data-field="name" placeholder="Name" value="${p.name||''}">
+      <button class="btn-icon danger" data-remove="${p.id}">✕</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', function() {
+      const id = parseInt(this.closest('.player-row').dataset.id);
+      const p = players.find(x=>x.id===id);
+      if (p) { p[this.dataset.field] = this.value; saveAll(); }
+    });
+  });
+  list.querySelectorAll('button[data-remove]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = parseInt(this.dataset.remove);
+      const p = players.find(x=>x.id===id);
+      const name = p?.name || p?.number || 'Spieler';
+      showConfirm(`${name} wirklich löschen? Alle gespeicherten Anwesenheiten dieses Spielers bleiben in der Historie, werden aber nicht mehr angezeigt.`, () => {
+        players = players.filter(x=>x.id!==id);
+        renderPlayers();
+        saveAll();
+      });
+    });
+  });
+}
+document.getElementById('btn-add-player').addEventListener('click', () => {
+  players.push({ id: uid(), number:'', name:'', active:true });
+  renderPlayers();
+  saveAll();
+  // focus last name input
+  setTimeout(()=>{
+    const rows = document.querySelectorAll('.player-row');
+    rows[rows.length-1]?.querySelector('input[data-field="name"]')?.focus();
+  }, 50);
+});
+
+// ============================================================
+// CALENDAR / TRAININGS
+// ============================================================
+function formatDateDisplay(dateStr) {
+  const d = new Date(dateStr+'T00:00:00');
+  const days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  return `${days[d.getDay()]}, ${d.getDate().toString().padStart(2,'0')}.${(d.getMonth()+1).toString().padStart(2,'0')}.${d.getFullYear()}`;
+}
+function renderTrainingList() {
+  const list = document.getElementById('training-list');
+  const empty = document.getElementById('training-empty');
+  const sorted = [...trainings].sort((a,b)=> b.date.localeCompare(a.date) || (b.time||'').localeCompare(a.time||''));
+  if (!sorted.length) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  list.innerHTML = sorted.map(tr => {
+    const recorded = players.length ? players.filter(p=>tr.attendance && tr.attendance[p.id]).length : 0;
+    const total = players.length;
+    const done = total > 0 && recorded === total;
+    return `<div class="training-item" data-id="${tr.id}">
+      <div style="flex:1;">
+        <div class="training-date">${formatDateDisplay(tr.date)}${tr.time?' · '+tr.time:''}</div>
+        <div class="training-sub">${tr.label || 'Training'}</div>
+      </div>
+      <span class="training-badge ${done?'done':''}" style="margin-right:8px;">${recorded}/${total}</span>
+      <button class="btn-icon danger" data-delete-training="${tr.id}">✕</button>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.training-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('[data-delete-training]')) return;
+      openAttendance(parseInt(item.dataset.id));
+    });
+  });
+  list.querySelectorAll('button[data-delete-training]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.deleteTraining);
+      const tr = trainings.find(t=>t.id===id);
+      showConfirm(`Training am ${formatDateDisplay(tr.date)} inkl. aller erfassten Anwesenheiten wirklich löschen?`, () => {
+        trainings = trainings.filter(t=>t.id!==id);
+        saveAll();
+        renderTrainingList();
+      });
+    });
+  });
+}
+
+// --- Modal: add/edit training ---
+const modalTraining = document.getElementById('modal-training');
+document.getElementById('btn-fab-add-training').addEventListener('click', () => openTrainingModal(null));
+document.getElementById('btn-cancel-training').addEventListener('click', closeTrainingModal);
+function closeTrainingModal() { modalTraining.classList.add('hidden'); }
+
+function openTrainingModal(trainingId) {
+  editingTrainingId = trainingId;
+  const isEdit = trainingId !== null;
+  document.getElementById('modal-training-title').textContent = isEdit ? 'Training bearbeiten' : 'Neues Training';
+  document.getElementById('btn-delete-training').classList.toggle('hidden', !isEdit);
+  document.getElementById('tr-series-section').classList.toggle('hidden', isEdit); // series only for new
+  document.getElementById('tr-series-options').classList.add('hidden');
+  document.getElementById('tr-is-series').checked = false;
+  document.querySelectorAll('.day-toggle').forEach(d=>d.classList.remove('sel'));
+
+  if (isEdit) {
+    const tr = trainings.find(t=>t.id===trainingId);
+    document.getElementById('tr-date').value  = tr.date;
+    document.getElementById('tr-time').value  = tr.time || '';
+    document.getElementById('tr-label').value = tr.label || '';
+  } else {
+    document.getElementById('tr-date').value  = todayStr();
+    document.getElementById('tr-time').value  = '';
+    document.getElementById('tr-label').value = '';
+    const future = new Date(); future.setMonth(future.getMonth()+3);
+    document.getElementById('tr-series-end').value = future.toISOString().slice(0,10);
+  }
+  modalTraining.classList.remove('hidden');
+}
+
+document.getElementById('tr-is-series').addEventListener('change', function() {
+  document.getElementById('tr-series-options').classList.toggle('hidden', !this.checked);
+});
+document.querySelectorAll('.day-toggle').forEach(d => {
+  d.addEventListener('click', () => d.classList.toggle('sel'));
+});
+
+document.getElementById('btn-save-training').addEventListener('click', () => {
+  const date  = document.getElementById('tr-date').value;
+  const time  = document.getElementById('tr-time').value;
+  const label = document.getElementById('tr-label').value.trim();
+  if (!date) { showToast('Bitte Datum wählen'); return; }
+
+  if (editingTrainingId !== null) {
+    const tr = trainings.find(t=>t.id===editingTrainingId);
+    tr.date = date; tr.time = time; tr.label = label;
+    showToast('Training aktualisiert');
+  } else {
+    const isSeries = document.getElementById('tr-is-series').checked;
+    if (isSeries) {
+      const selDays = [...document.querySelectorAll('.day-toggle.sel')].map(d=>parseInt(d.dataset.day));
+      const endDate = document.getElementById('tr-series-end').value;
+      if (!selDays.length || !endDate) { showToast('Wochentage & Enddatum wählen'); return; }
+      let count = 0;
+      let cur = new Date(date+'T00:00:00');
+      const end = new Date(endDate+'T00:00:00');
+      while (cur <= end) {
+        if (selDays.includes(cur.getDay())) {
+          trainings.push({ id: uid(), date: cur.toISOString().slice(0,10), time, label, attendance: defaultAttendance() });
+          count++;
+        }
+        cur.setDate(cur.getDate()+1);
+      }
+      showToast(`${count} Termine angelegt`);
+    } else {
+      trainings.push({ id: uid(), date, time, label, attendance: defaultAttendance() });
+      showToast('Training angelegt');
+    }
+  }
+  saveAll();
+  renderTrainingList();
+  closeTrainingModal();
+});
+
+document.getElementById('btn-delete-training').addEventListener('click', () => {
+  showConfirm('Dieses Training inkl. aller erfassten Anwesenheiten wirklich löschen?', () => {
+    trainings = trainings.filter(t=>t.id!==editingTrainingId);
+    saveAll();
+    renderTrainingList();
+    closeTrainingModal();
+  });
+});
+
+// Open training edit modal when tapping the date/label area — but tapping the row itself
+// opens attendance. We add a small edit affordance: long-press alternative = tap badge area opens edit.
+// Simpler: tapping row opens attendance; an edit pencil isn't in the row — so let's add edit access
+// via the attendance screen's header instead (see openAttendance below).
+
+// ============================================================
+// ATTENDANCE (per training)
+// ============================================================
+function openAttendance(trainingId) {
+  const tr = trainings.find(t=>t.id===trainingId);
+  if (!tr) return;
+  editingTrainingId = trainingId;
+  document.getElementById('att-screen-title').textContent = formatDateDisplay(tr.date) + (tr.time?' · '+tr.time:'');
+  document.getElementById('att-screen-sub').innerHTML = `${tr.label||'Training'} &nbsp;·&nbsp; <span id="att-edit-link" style="text-decoration:underline;cursor:pointer;color:var(--blue);">Termin bearbeiten</span>`;
+  renderAttendanceList(tr);
+  switchScreen('attendance');
+  document.getElementById('att-edit-link').addEventListener('click', () => openTrainingModal(trainingId));
+}
+document.getElementById('btn-back-to-calendar').addEventListener('click', () => {
+  renderTrainingList();
+  switchScreen('calendar');
+});
+
+function renderAttendanceList(tr) {
+  const list = document.getElementById('attendance-list');
+  if (!players.length) {
+    list.innerHTML = '<div class="empty-state">Noch keine Spieler angelegt. Lege zuerst Spieler im Tab "Spieler" an.</div>';
+    return;
+  }
+  if (!tr.attendance) tr.attendance = {};
+  list.innerHTML = players.map(p => {
+    const cur = tr.attendance[p.id] || null;
+    return `<div class="att-row" data-pid="${p.id}">
+      <div class="att-name">${p.number?p.number+' · ':''}${p.name||'Unbenannt'}</div>
+      <div class="att-options">
+        ${CAT_ORDER.map(catKey => {
+          const cat = CATEGORIES[catKey];
+          const sel = cur === catKey ? cat.cls : '';
+          return `<div class="att-btn ${sel}" data-cat="${catKey}">${cat.short}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.att-row').forEach(row => {
+    const pid = parseInt(row.dataset.pid);
+    row.querySelectorAll('.att-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.cat;
+        const current = tr.attendance[pid];
+        tr.attendance[pid] = (current === cat) ? null : cat; // tap again to clear
+        if (tr.attendance[pid] === null) delete tr.attendance[pid];
+        saveAll();
+        renderAttendanceList(tr); // re-render to update highlight
+      });
+    });
+  });
+}
+
+// ============================================================
+// RESULTS
+// ============================================================
+document.getElementById('btn-run-results').addEventListener('click', runResults);
+
+function runResults() {
+  const from = document.getElementById('res-from').value;
+  const to   = document.getElementById('res-to').value;
+  if (!from || !to) { showToast('Bitte Zeitraum wählen'); return; }
+
+  const inRange = trainings.filter(t => t.date >= from && t.date <= to);
+  const totalTrainings = inRange.length;
+
+  document.getElementById('results-meta').textContent =
+    `${totalTrainings} Training${totalTrainings!==1?'s':''} im Zeitraum ${formatDateDisplay(from)} – ${formatDateDisplay(to)}`;
+
+  // Build per-player counts + quotes + score
+  const rows = players.map(p => {
+    const counts = {}; CAT_ORDER.forEach(c => counts[c]=0);
+    inRange.forEach(tr => {
+      const cat = tr.attendance && tr.attendance[p.id];
+      if (cat && counts.hasOwnProperty(cat)) counts[cat]++;
+    });
+    // Denominator: all trainings in range (excused counts as its own quote, not excluded)
+    const denom = totalTrainings;
+
+    const quotePresent  = denom > 0 ? Math.round((counts.present       / denom) * 100) : null;
+    const quotePresentW = denom > 0 ? Math.round((counts.presentW      / denom) * 100) : null;
+    const quoteExcused  = denom > 0 ? Math.round((counts.excused       / denom) * 100) : null;
+    const quoteUnreg    = denom > 0 ? Math.round((counts.unregistered  / denom) * 100) : null;
+    const quoteUnexc    = denom > 0 ? Math.round((counts.unexcused     / denom) * 100) : null;
+
+    // Score: average points; "excused" still excluded from numerator/denominator of the score itself
+    // (score reflects effort/reliability when attendance was expected — being properly excused isn't a strike)
+    const scoreDenom = Math.max(0, totalTrainings - counts.excused);
+    let scoreSum = 0;
+    scoreSum += counts.present       * CATEGORIES.present.points;
+    scoreSum += counts.presentW      * CATEGORIES.presentW.points;
+    scoreSum += counts.unregistered  * CATEGORIES.unregistered.points;
+    scoreSum += counts.unexcused     * CATEGORIES.unexcused.points;
+    const score = scoreDenom > 0 ? Math.round(scoreSum / scoreDenom) : null;
+
+    return { player: p, counts, denom, quotePresent, quotePresentW, quoteExcused, quoteUnreg, quoteUnexc, score };
+  });
+
+  function pctCell(val, goodHigh=true) {
+    if (val === null) return '<td class="pct">–</td>';
+    let color;
+    if (goodHigh) color = val>=80?'var(--green)':val>=50?'var(--yellow)':'var(--accent)';
+    else          color = val<=10?'var(--green)':val<=30?'var(--yellow)':'var(--accent)';
+    return `<td class="pct" style="color:${color}">${val}%</td>`;
+  }
+  function scoreCell(val) {
+    if (val === null) return '<td class="pct">–</td>';
+    const color = val>=80?'var(--green)':val>=50?'var(--yellow)':'var(--accent)';
+    return `<td class="pct" style="color:${color};font-size:.95rem;">${val}</td>`;
+  }
+
+  // Render table
+  const table = document.getElementById('results-table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th class="th-name">Spieler</th>
+        ${CAT_ORDER.map(c=>`<th>${CATEGORIES[c].short}</th>`).join('')}
+        <th>Teiln.</th>
+        <th>Teiln. ⚠</th>
+        <th>Entsch.</th>
+        <th>Abgem.</th>
+        <th>Unentsch.</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(r => `
+        <tr>
+          <td class="td-name">${r.player.number?r.player.number+' · ':''}${r.player.name||'Unbenannt'}</td>
+          ${CAT_ORDER.map(c=>`<td>${r.counts[c]||''}</td>`).join('')}
+          ${pctCell(r.quotePresent, true)}
+          ${pctCell(r.quotePresentW, false)}
+          ${pctCell(r.quoteExcused, false)}
+          ${pctCell(r.quoteUnreg, false)}
+          ${pctCell(r.quoteUnexc, false)}
+          ${scoreCell(r.score)}
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+  document.getElementById('results-card').classList.remove('hidden');
+}
+
+// ============================================================
+// SERVICE WORKER (inline, enables PWA install + offline)
+// ============================================================
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'att-v1';
+    self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/']))); self.skipWaiting(); });
+    self.addEventListener('activate', e => { self.clients.claim(); });
+    self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))); });
+  `;
+  const blob = new Blob([swCode], {type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadAll();
+renderPlayers();
+renderTrainingList();
+document.getElementById('res-to').value = todayStr();
+const d30 = new Date(); d30.setDate(d30.getDate()-30);
+document.getElementById('res-from').value = d30.toISOString().slice(0,10);
+
+
+</script>
+</body>
+</html>
