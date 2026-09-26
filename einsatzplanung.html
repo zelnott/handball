@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f3a5f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Einsatzplan">
+<title>Einsatzplaner</title>
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--ink:#1d2433;--mute:#6b7485;--line:#dde2ea;--pri:#1f3a5f;
+--A:#e8590c;--V:#1c7ed6;--F:#2f9e44;--T:#f2b705;--B:#e9ecef;--okbg:#d3f9d8;--okfg:#1b5e20;--badbg:#ffe3e3;--badfg:#a61e1e}
+@media (prefers-color-scheme:dark){:root{--bg:#12161d;--card:#1c222c;--ink:#e6e9ef;--mute:#98a1b2;--line:#2c3441;--B:#2a313c;--okbg:#1f3b26;--okfg:#9be3a9;--badbg:#4a1f22;--badfg:#ffb3b3}}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
+header{background:var(--pri);color:#fff;position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top)}
+.hrow{display:flex;gap:8px;align-items:center;padding:10px 16px 4px}
+.hrow h1{font-size:17px;margin:0;flex:1;white-space:nowrap}
+.hrow select{max-width:60%;font-size:15px;padding:6px 8px;border-radius:8px;border:0;background:#fff;color:#1d2433}
+nav{display:flex}
+nav button{flex:1;padding:10px 2px 8px;background:none;border:0;color:#b9c6da;font-size:13px;border-bottom:3px solid transparent;font-weight:500}
+nav button.on{color:#fff;border-color:#fff;font-weight:700}
+main{padding:12px 12px 90px;max-width:900px;margin:0 auto}
+.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+h2{font-size:16px;margin:0 0 10px}
+h3{margin:0 0 8px;font-size:16px}
+.mute{color:var(--mute);font-weight:400}
+.small{font-size:12px}
+.grow{flex:1}
+.rowf{display:flex;gap:8px;align-items:center;margin-top:8px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+input{font-size:16px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:100%;min-width:0}
+code{background:var(--B);padding:1px 4px;border-radius:4px}
+.btn{font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;white-space:nowrap}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn.pri{background:var(--pri);color:#fff;border-color:var(--pri)}
+.btn.danger{color:#c92a2a}
+.btn.dangerfill{background:#c92a2a;color:#fff;border-color:#c92a2a}
+.chip{display:inline-block;padding:8px 13px;border-radius:20px;border:1px solid var(--line);margin:3px;background:var(--B);color:var(--mute);font-size:15px}
+.chip.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:600}
+.prow{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line)}
+.icon{border:0;background:var(--B);color:var(--ink);width:34px;height:34px;border-radius:8px;font-size:15px}
+.warn{color:#c92a2a;font-weight:600}
+.status{font-weight:700;text-align:center}
+.status.ok{background:var(--okbg);color:var(--okfg)}
+.status.bad{background:var(--badbg);color:var(--badfg)}
+.timeline{display:flex;gap:3px;margin-top:10px}
+.timeline div{background:var(--pri);color:#fff;border-radius:6px;padding:6px 2px;text-align:center;font-size:11px;min-width:0;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:13px;margin:0 0 4px}
+.legend .cell{width:26px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.gridwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.plan{border-collapse:separate;border-spacing:3px}
+.plan .name{position:sticky;left:0;background:var(--card);text-align:left;white-space:nowrap;padding-right:6px;z-index:1;font-size:14px;font-weight:600}
+.plan .name small{color:var(--mute);display:block;font-size:11px;font-weight:400}
+.cell{width:44px;height:38px;border:0;border-radius:8px;font-weight:700;font-size:14px;background:var(--B);color:var(--mute)}
+.cell.A{background:var(--A);color:#fff}.cell.V{background:var(--V);color:#fff}.cell.F{background:var(--F);color:#fff}.cell.T{background:var(--T);color:#3a2c00}
+th.slice{font-size:11px;color:var(--mute);font-weight:600;padding:2px 0;text-decoration:underline dotted;white-space:nowrap}
+td.cnt{font-size:10px;line-height:1.35;text-align:center;border-radius:6px;padding:3px 1px;font-weight:600}
+.cnt.ok{background:var(--okbg);color:var(--okfg)}.cnt.bad{background:var(--badbg);color:var(--badfg)}
+.srow{padding:9px 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:0}
+.shead{display:flex;justify-content:space-between;align-items:baseline;font-weight:600}
+.bar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--B);margin:5px 0 3px;position:relative}
+.bar i{display:block;height:100%}
+.bar .avg{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.6}
+.sub{margin:8px 0 2px}
+.tag{display:inline-block;font-size:12px;font-weight:700;color:#fff;padding:2px 8px;border-radius:10px;margin-bottom:4px}
+.tag.A{background:var(--A)}.tag.V{background:var(--V)}.tag.F{background:var(--F)}.tag.T{background:var(--T);color:#3a2c00}.tag.B{background:var(--mute)}
+.move{font-size:15px;padding:3px 0}
+.move .in{color:#2b8a3e;font-weight:700}.move .out{color:#c92a2a;font-weight:700}
+.time{font-size:20px;font-weight:800;margin-right:6px}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.mask.on{display:flex}
+.modal{background:var(--card);border-radius:14px;padding:16px;width:100%;max-width:380px}
+.modal p{margin:0 0 12px}
+.modal input{margin-bottom:12px}
+.mbtns{display:flex;flex-direction:column;gap:8px}
+.mbtns.row2{flex-direction:row;justify-content:flex-end}
+.mbtns.grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.mbtns.grid .btn{padding:10px 4px;white-space:normal;line-height:1.2}
+.mbtns.grid .btn small{display:block;font-weight:400;font-size:11px;opacity:.85}
+.mbtns.grid .wide{grid-column:span 4}
+.btn.F{background:var(--F);color:#fff;border-color:var(--F)}.btn.T{background:var(--T);color:#3a2c00;border-color:var(--T)}.btn.cur{outline:3px solid var(--ink);outline-offset:1px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:60}
+#toast.on{opacity:.95}
+#printArea{display:none}
+@media print{
+  body *{visibility:hidden}
+  #printArea,#printArea *{visibility:visible}
+  #printArea{display:block;position:absolute;left:0;top:0;width:100%;color:#000;background:#fff;font-family:Arial,Helvetica,sans-serif}
+  #printArea h1{font-size:18px;margin:0 0 2px}
+  #printArea h2{font-size:15px;margin:16px 0 6px;border-bottom:1px solid #000;padding-bottom:2px}
+  #printArea h3{font-size:13px;margin:10px 0 4px}
+  #printArea p{font-size:12px;margin:0 0 6px}
+  #printArea .meta{font-size:11px;color:#333;margin:0 0 10px}
+  table.ptbl{border-collapse:collapse;width:100%;margin-bottom:6px;font-size:11px}
+  table.ptbl th,table.ptbl td{border:1px solid #000;padding:3px 5px;text-align:center}
+  table.ptbl th:first-child,table.ptbl td:first-child{text-align:left;white-space:nowrap}
+  table.ptbl tr{page-break-inside:avoid}
+  .psec{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow"><h1>Einsatzplaner</h1><select id="gameSel"></select></div>
+  <nav id="nav">
+    <button data-tab="kader">Kader</button>
+    <button data-tab="zeit">Zeiten</button>
+    <button data-tab="plan">Plan</button>
+    <button data-tab="stat">Minuten</button>
+    <button data-tab="wechsel">Wechsel</button>
+  </nav>
+</header>
+<main id="main"></main>
+<div class="mask" id="mask"></div>
+<div id="toast"></div>
+<input type="file" id="impFile" accept=".json,application/json" hidden>
+<div id="printArea"></div>
+
+<script>
+const HALF = 20;
+const KEY = 'einsatzplaner_v1';
+const DEFAULT_ROSTER = ['Daniel','Matti','Matteo','Phileas','Felix H','Ben G','Ben K','Oliver','Erik','Jonte','Clemens','Gabriel','Felix B'];
+const POS = {
+  h1: [{k:'A',n:'Angriff',q:3},{k:'V',n:'Abwehr',q:3},{k:'T',n:'Torwart',q:1}],
+  h2: [{k:'LA',n:'Linksaußen',q:1},{k:'RL',n:'Rückraum links',q:1},{k:'RM',n:'Rückraum Mitte',q:1},{k:'KR',n:'Kreis',q:1},{k:'RR',n:'Rückraum rechts',q:1},{k:'RA',n:'Rechtsaußen',q:1},{k:'T',n:'Torwart',q:1}]
+};
+const CYCLE = {h1:['','A','V','T']};
+const FIELD2 = ['LA','RL','RM','KR','RR','RA'];
+const isF2 = x => FIELD2.includes(x) || x === 'F';
+const cls = x => isF2(x) ? 'F' : x;
+const PNAME = {A:'Angriff',V:'Abwehr',F:'Feld (ohne Pos.)',T:'Torwart','':'Bank',LA:'LA',RL:'RL',RM:'RM',KR:'KR',RR:'RR',RA:'RA'};
+const HNAME = {h1:'1. Halbzeit', h2:'2. Halbzeit'};
+const HSHORT = {h1:'1. HZ', h2:'2. HZ'};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+let S = null;
+let tab = 'kader';
+let statSort = 'kader';
+
+/* ---------- Daten ---------- */
+function newGame(name){
+  const g = {id:uid(), name, present:{}, slices:{h1:[5,5,5,5], h2:[5,5,5,5]}, plan:{h1:{}, h2:{}}};
+  S.roster.forEach(p => g.present[p.id] = true);
+  return g;
+}
+function load(){
+  try { const raw = localStorage.getItem(KEY); if (raw) S = JSON.parse(raw); } catch(e) { S = null; }
+  if (!S || !Array.isArray(S.roster) || !S.games) {
+    S = {roster: DEFAULT_ROSTER.map(n => ({id:uid(), name:n})), games:{}, cur:null};
+    const g = newGame('Spiel 1'); S.games[g.id] = g; S.cur = g.id; save();
+  }
+  if (!S.games[S.cur]) S.cur = Object.keys(S.games)[0];
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) { toast('Speichern im Browser nicht möglich'); }
+}
+const G = () => S.games[S.cur];
+const present = () => S.roster.filter(p => G().present[p.id]);
+
+function row(h, pid){
+  const g = G(), n = g.slices[h].length;
+  let r = g.plan[h][pid];
+  if (!r) r = g.plan[h][pid] = [];
+  while (r.length < n) r.push('');
+  if (r.length > n) r.length = n;
+  return r;
+}
+function starts(h){ let t = 0; return G().slices[h].map(d => { const s = t; t += d; return s; }); }
+function fmt(m){ const mm = Math.floor(m + 1e-9), ss = Math.round((m - mm) * 60); return String(mm).padStart(2,'0') + ':' + String(ss).padStart(2,'0'); }
+function fmin(m){ return String(Math.round(m * 10) / 10).replace('.', ','); }
+
+function colCounts(h, i){
+  const c = {};
+  present().forEach(p => { const s = row(h, p.id)[i]; if (s) c[s] = (c[s] || 0) + 1; });
+  return c;
+}
+function cntText(h, c){
+  if (h === 'h1') return POS[h].map(x => `${x.k} ${c[x.k] || 0}/${x.q}`).join('<br>');
+  const miss = POS.h2.filter(x => !c[x.k]).map(x => x.k === 'T' ? 'TW' : x.k);
+  const dup = POS.h2.filter(x => (c[x.k] || 0) > 1).map(x => `2×${x.k === 'T' ? 'TW' : x.k}`);
+  const extra = c.F ? [`${c.F}×F?`] : [];
+  if (!miss.length && !dup.length && !extra.length) return '✓<br>7/7';
+  return [...(miss.length ? ['fehlt', miss.join(' ')] : []), ...dup, ...extra].join('<br>');
+}
+function colOk(h, i){ const c = colCounts(h, i); return POS[h].every(x => (c[x.k] || 0) === x.q); }
+function badSlices(){
+  const list = [];
+  ['h1','h2'].forEach(h => G().slices[h].forEach((_, i) => { if (!colOk(h, i)) list.push([h, i]); }));
+  return list;
+}
+
+function parseSlices(str){
+  const num = s => parseFloat(s.replace(',', '.'));
+  const parts = str.replace(/\s/g, '').split(/[,;+]/).filter(Boolean);
+  const out = [];
+  for (const t of parts){
+    let m = t.match(/^(\d+)[x*×](\d+(?:\.\d+)?)$/i);
+    if (m){ for (let k = 0; k < +m[1]; k++) out.push(num(m[2])); continue; }
+    if (/^\d+(?:\.\d+)?$/.test(t)){ out.push(num(t)); continue; }
+    return null;
+  }
+  if (!out.length || out.some(x => !(x > 0)) || out.length > 20) return null;
+  return out;
+}
+function setSlices(h, arr){
+  const g = G(), old = g.slices[h], os = starts(h);
+  let t = 0;
+  const map = arr.map(d => {
+    const mid = t + d / 2; t += d;
+    let j = 0; for (let k = 0; k < old.length; k++) if (mid >= os[k]) j = k;
+    return j;
+  });
+  Object.keys(g.plan[h]).forEach(pid => { const r = g.plan[h][pid]; g.plan[h][pid] = map.map(j => r[j] || ''); });
+  g.slices[h] = arr;
+  save();
+}
+
+/* ---------- Ansichten ---------- */
+function vKader(){
+  const g = G(), pr = present();
+  let h = `<div class="card"><h2>Spiel: ${esc(g.name)}</h2>
+    <div class="btns"><button class="btn" data-act="gNew">＋ Neues Spiel</button><button class="btn" data-act="gCopy">Kopieren</button>
+    <button class="btn" data-act="gRen">Umbenennen</button><button class="btn danger" data-act="gDel">Löschen</button></div></div>`;
+  h += `<div class="card"><h2>Wer ist dabei? <span class="mute">${pr.length} von ${S.roster.length}</span></h2>
+    <div>${S.roster.map(p => `<button class="chip ${g.present[p.id] ? 'on' : ''}" data-act="toggle" data-p="${p.id}">${esc(p.name)}</button>`).join('')}</div>
+    <div class="btns"><button class="btn small" data-act="allIn">Alle</button><button class="btn small" data-act="allOut">Keiner</button></div>
+    ${pr.length < 7 ? `<p class="warn">Mindestens 7 Spieler nötig (6 + Torwart).</p>` : ''}</div>`;
+  h += `<div class="card"><h2>Kader bearbeiten</h2>
+    ${S.roster.map(p => `<div class="prow"><span class="grow">${esc(p.name)}</span><button class="icon" data-act="pRen" data-p="${p.id}" aria-label="Umbenennen">✎</button><button class="icon" data-act="pDel" data-p="${p.id}" aria-label="Löschen">✕</button></div>`).join('')}
+    <div class="rowf"><input id="newName" placeholder="Neuer Spieler" enterkeyhint="done"><button class="btn pri" data-act="pAdd">Hinzufügen</button></div></div>`;
+  h += `<div class="card"><h2>Datensicherung</h2><p class="mute small">Alles wird automatisch im Browser gespeichert. Export als Backup oder zum Übertragen auf ein anderes Gerät.</p>
+    <div class="btns"><button class="btn" data-act="exp">Export</button><button class="btn" data-act="imp">Import</button></div></div>`;
+  return h;
+}
+
+function vZeit(){
+  const g = G();
+  const presets = [['4×5','4*5'],['5×4','5*4'],['2×10','2*10'],['6×3+2','6*3+2'],['10+5+5','10,5,5']];
+  return ['h1','h2'].map(h => {
+    const s = g.slices[h], st = starts(h);
+    return `<div class="card"><h2>${HNAME[h]} <span class="mute">${s.length} Zeitscheiben</span></h2>
+      <div class="btns">${presets.map(p => `<button class="btn small" data-act="preset" data-h="${h}" data-v="${p[1]}">${p[0]}</button>`).join('')}</div>
+      <div class="rowf"><input id="sl_${h}" value="${s.join(', ')}"><button class="btn pri" data-act="applySl" data-h="${h}">Übernehmen</button></div>
+      <p class="mute small">z. B. <code>5,5,5,5</code> oder <code>6*3+2</code> (Anzahl*Minuten). Summe muss ${HALF} ergeben.</p>
+      <div class="timeline">${s.map((d, i) => `<div style="flex:${d}">${fmin(st[i])}–${fmin(st[i] + d)}</div>`).join('')}</div></div>`;
+  }).join('') + `<p class="mute small">Beim Ändern der Zeitscheiben wird der bestehende Plan zeitlich übertragen, so gut es geht.</p>`;
+}
+
+function vPlan(){
+  const pr = present();
+  if (pr.length < 7) return `<div class="card warn">Bitte zuerst im Kader mindestens 7 Spieler als dabei markieren.</div>`;
+  const bad = badSlices().length, tot = G().slices.h1.length + G().slices.h2.length;
+  let out = `<div class="card status ${bad ? 'bad' : 'ok'}">${bad ? `${bad} von ${tot} Zeitscheiben noch nicht korrekt besetzt` : '✓ Alle Zeitscheiben korrekt besetzt'}</div>`;
+  out += `<div class="legend"><span class="cell A">A</span>Angriff <span class="cell V">V</span>Abwehr <span class="cell F">LA</span>Positionen 2. HZ <span class="cell T">T</span>Torwart <span class="cell">–</span>Bank</div>
+    <p class="mute small" style="margin:4px 0 10px">1. HZ: Zelle antippen = durchschalten. 2. HZ: Zelle antippen = Position wählen (belegte Position wird getauscht). Zeitkopf antippen = Spalte kopieren oder leeren.</p>`;
+  ['h1','h2'].forEach(h => {
+    const s = G().slices[h], st = starts(h);
+    out += `<div class="card"><h2>${HNAME[h]} <span class="mute small">${h === 'h1' ? '3 Angriff + 3 Abwehr + TW' : 'LA · RL · RM · KR · RR · RA + TW'}</span></h2>
+      <div class="gridwrap" id="gw_${h}"><table class="plan"><thead><tr><th class="name"></th>
+      ${s.map((d, i) => `<th class="slice" data-act="col" data-h="${h}" data-i="${i}">${fmin(st[i])}–${fmin(st[i] + d)}</th>`).join('')}</tr></thead><tbody>`;
+    pr.forEach(p => {
+      const r = row(h, p.id);
+      const m = r.reduce((a, x, i) => a + (x ? s[i] : 0), 0);
+      out += `<tr><td class="name">${esc(p.name)}<small>${fmin(m)} min</small></td>
+        ${r.map((x, i) => `<td><button class="cell ${cls(x)}" data-act="cell" data-h="${h}" data-p="${p.id}" data-i="${i}">${x || '–'}</button></td>`).join('')}</tr>`;
+    });
+    out += `</tbody><tfoot><tr><td class="name mute small">Besetzung</td>
+      ${s.map((_, i) => { const c = colCounts(h, i); return `<td class="cnt ${colOk(h, i) ? 'ok' : 'bad'}">${cntText(h, c)}</td>`; }).join('')}
+      </tr></tfoot></table></div></div>`;
+  });
+  out += `<div class="btns"><button class="btn danger" data-act="clearPlan">Ganzen Plan leeren</button></div>`;
+  return out;
+}
+
+function playerMinutes(pid){
+  const g = G(), m = {A:0, V:0, F:0, T:0, h1:0, h2:0};
+  m.pos = {};
+  ['h1','h2'].forEach(h => row(h, pid).forEach((x, i) => { if (!x) return; const d = g.slices[h][i]; m[h] += d;
+    if (isF2(x)){ m.F += d; m.pos[x] = (m.pos[x] || 0) + d; } else m[x] += d; }));
+  m.tot = m.h1 + m.h2;
+  m.field = m.A + m.V + m.F;
+  return m;
+}
+
+function vStat(){
+  const pr = present();
+  if (!pr.length) return `<div class="card">Niemand als dabei markiert.</div>`;
+  let rows = pr.map(p => ({p, m: playerMinutes(p.id)}));
+  if (statSort === 'min') rows.sort((a, b) => b.m.tot - a.m.tot);
+  const total = 2 * HALF;
+  const avgField = (6 * total) / pr.length;
+  const avgAll = (7 * total) / pr.length;
+  const bad = badSlices().length;
+  let out = `<div class="card"><div class="shead"><span>${pr.length} Spieler dabei</span><span class="mute small">Spielzeit ${total} min</span></div>
+    <p class="mute small" style="margin:6px 0 0">Ø Einsatz inkl. TW: <b>${fmin(avgAll)} min</b> · Ø Feldzeit: <b>${fmin(avgField)} min</b>. Der Strich im Balken markiert den Ø inkl. TW.</p>
+    ${bad ? `<p class="warn small" style="margin:6px 0 0">Achtung: ${bad} Zeitscheibe(n) noch nicht korrekt besetzt.</p>` : ''}
+    <div class="btns"><button class="btn small ${statSort === 'kader' ? 'pri' : ''}" data-act="sort" data-v="kader">Kader-Reihenfolge</button>
+    <button class="btn small ${statSort === 'min' ? 'pri' : ''}" data-act="sort" data-v="min">Nach Minuten</button></div></div>`;
+  out += `<div class="card">`;
+  rows.forEach(({p, m}) => {
+    const w = k => (m[k] / total * 100).toFixed(2) + '%';
+    const warns = [];
+    if (m.h1 === 0) warns.push('kein Einsatz 1. HZ');
+    if (m.h2 === 0) warns.push('kein Einsatz 2. HZ');
+    const d1 = [m.A ? `A ${fmin(m.A)}` : '', m.V ? `V ${fmin(m.V)}` : ''].filter(Boolean);
+    const h1T = row('h1', p.id).reduce((a, x, i) => a + (x === 'T' ? G().slices.h1[i] : 0), 0);
+    const h2T = m.T - h1T;
+    if (h1T) d1.push(`TW ${fmin(h1T)}`);
+    const d2 = [...FIELD2.concat('F').filter(k => m.pos[k]).map(k => `${k} ${fmin(m.pos[k])}`), h2T ? `TW ${fmin(h2T)}` : ''].filter(Boolean);
+    out += `<div class="srow"><div class="shead"><span>${esc(p.name)}</span><span>${fmin(m.tot)} min</span></div>
+      <div class="bar"><i style="width:${w('A')};background:var(--A)"></i><i style="width:${w('V')};background:var(--V)"></i><i style="width:${w('F')};background:var(--F)"></i><i style="width:${w('T')};background:var(--T)"></i>
+      <span class="avg" style="left:${(avgAll / total * 100).toFixed(2)}%"></span></div>
+      <div class="mute small">1. HZ ${fmin(m.h1)}${d1.length ? ' (' + d1.join(' · ') + ')' : ''} · 2. HZ ${fmin(m.h2)}${d2.length ? ' (' + d2.join(' · ') + ')' : ''} · Bank ${fmin(total - m.tot)}</div>
+      ${warns.length ? `<div class="warn small">⚠ ${warns.join(', ')}</div>` : ''}</div>`;
+  });
+  out += `</div>`;
+  return out;
+}
+
+function lineup(h, i){
+  const res = {};
+  POS[h].forEach(x => res[x.k] = []);
+  res[''] = [];
+  present().forEach(p => { const s = row(h, p.id)[i]; (res[s] || res['']).push(p.name); });
+  return res;
+}
+function changes(h, i){
+  const pr = present(), res = [];
+  POS[h].forEach(pos => {
+    const outs = [], ins = [];
+    pr.forEach(p => {
+      const r = row(h, p.id), a = r[i - 1], b = r[i];
+      if (a === pos.k && b !== pos.k) outs.push({p, to:b});
+      if (b === pos.k && a !== pos.k) ins.push({p, from:a});
+    });
+    const benchFirst = k => (a, b) => (a[k] === '' ? 0 : 1) - (b[k] === '' ? 0 : 1);
+    outs.sort(benchFirst('to')); ins.sort(benchFirst('from'));
+    if (outs.length || ins.length) res.push({pos, outs, ins});
+  });
+  return res;
+}
+
+function vWechsel(){
+  const pr = present();
+  if (pr.length < 7) return `<div class="card warn">Bitte zuerst im Kader mindestens 7 Spieler als dabei markieren.</div>`;
+  const bad = badSlices();
+  let out = bad.length ? `<div class="card status bad">${bad.length} Zeitscheibe(n) nicht korrekt besetzt – Wechsel können unvollständig sein.</div>` : '';
+  out += `<div class="btns" style="margin:0 0 12px"><button class="btn pri" data-act="share">Als Text teilen</button><button class="btn pri" data-act="pdf">PDF exportieren</button></div>`;
+  ['h1','h2'].forEach(h => {
+    const s = G().slices[h], st = starts(h);
+    const lu = lineup(h, 0);
+    out += `<div class="card"><h2>${HNAME[h]} · Startaufstellung</h2>
+      ${POS[h].map(x => `<div class="sub"><span class="tag ${cls(x.k)}">${h === 'h2' && x.k !== 'T' ? x.k + ' · ' + x.n : x.n}</span> ${lu[x.k].map(esc).join(', ') || '<span class="warn">–</span>'}</div>`).join('')}
+      <div class="sub"><span class="tag B">Bank</span> ${lu[''].map(esc).join(', ') || '–'}</div></div>`;
+    for (let i = 1; i < s.length; i++){
+      const ch = changes(h, i);
+      out += `<div class="card"><div><span class="time">${fmt(st[i])}</span><span class="mute">${HSHORT[h]}</span></div>`;
+      if (!ch.length){ out += `<p class="mute" style="margin:6px 0 0">Keine Wechsel</p></div>`; continue; }
+      ch.forEach(({pos, outs, ins}) => {
+        out += `<div class="sub"><span class="tag ${cls(pos.k)}">${pos.k === 'T' ? 'Torwart' : (h === 'h2' ? pos.k + ' · ' + pos.n : pos.n)}</span>`;
+        const n = Math.max(outs.length, ins.length);
+        for (let k = 0; k < n; k++){
+          const o = outs[k], nIn = ins[k];
+          const inTxt = nIn ? `<span class="in">⬆ ${esc(nIn.p.name)}</span> <span class="mute small">(von ${PNAME[nIn.from]})</span>` : `<span class="warn">⬆ niemand</span>`;
+          const outTxt = o ? `<span class="out">⬇ ${esc(o.p.name)}</span> <span class="mute small">(→ ${PNAME[o.to]})</span>` : `<span class="warn">⬇ niemand</span>`;
+          out += `<div class="move">${inTxt} für ${outTxt}</div>`;
+        }
+        out += `</div>`;
+      });
+      out += `</div>`;
+    }
+  });
+  return out;
+}
+
+function subsText(){
+  const lines = [`Einsatzplan: ${G().name}`];
+  ['h1','h2'].forEach(h => {
+    const s = G().slices[h], st = starts(h), lu = lineup(h, 0);
+    lines.push('', `== ${HNAME[h]} ==`, 'Start:');
+    POS[h].forEach(x => lines.push(`  ${h === 'h2' && x.k !== 'T' ? x.k : x.n}: ${lu[x.k].join(', ') || '-'}`));
+    lines.push(`  Bank: ${lu[''].join(', ') || '-'}`);
+    for (let i = 1; i < s.length; i++){
+      const ch = changes(h, i);
+      if (!ch.length) continue;
+      lines.push(`${fmt(st[i])}:`);
+      ch.forEach(({pos, outs, ins}) => {
+        const n = Math.max(outs.length, ins.length);
+        for (let k = 0; k < n; k++){
+          const a = ins[k] ? `${ins[k].p.name} rein (von ${PNAME[ins[k].from]})` : 'niemand rein';
+          const b = outs[k] ? `${outs[k].p.name} raus (-> ${PNAME[outs[k].to]})` : 'niemand raus';
+          lines.push(`  ${h === 'h2' && pos.k !== 'T' ? pos.k : pos.n}: ${a} für ${b}`);
+        }
+      });
+    }
+  });
+  return lines.join('\n');
+}
+
+function buildPrintHTML(){
+  const g = G(), pr = present();
+  let h = `<h1>Einsatzplan – ${esc(g.name)}</h1><p class="meta">Erstellt am ${new Date().toLocaleDateString('de-DE')} · ${pr.length} Spieler</p>`;
+  h += `<div class="psec"><h2>Einsatzplanung</h2>`;
+  ['h1','h2'].forEach(hh => {
+    const s = G().slices[hh], st = starts(hh);
+    h += `<h3>${HNAME[hh]}${hh === 'h2' ? ' (LA/RL/RM/KR/RR/RA/TW)' : ' (A=Angriff, V=Abwehr, TW=Torwart)'}</h3>
+      <table class="ptbl"><thead><tr><th>Spieler</th>${s.map((d, i) => `<th>${fmin(st[i])}–${fmin(st[i] + d)}</th>`).join('')}<th>Min.</th></tr></thead><tbody>`;
+    pr.forEach(p => {
+      const r = row(hh, p.id), m = r.reduce((a, x, i) => a + (x ? s[i] : 0), 0);
+      h += `<tr><td>${esc(p.name)}</td>${r.map(x => `<td>${x === 'T' ? 'TW' : (x || '–')}</td>`).join('')}<td>${fmin(m)}</td></tr>`;
+    });
+    h += `</tbody></table>`;
+  });
+  h += `</div>`;
+  h += `<div class="psec"><h2>Wechsel</h2>`;
+  ['h1','h2'].forEach(hh => {
+    const s = G().slices[hh], st = starts(hh), lu = lineup(hh, 0);
+    h += `<h3>${HNAME[hh]} – Startaufstellung</h3><p>` +
+      POS[hh].map(x => `${x.k === 'T' ? 'TW' : (hh === 'h2' ? x.k : x.n)}: ${lu[x.k].join(', ') || '–'}`).join(' · ') +
+      ` · Bank: ${lu[''].join(', ') || '–'}</p>`;
+    h += `<table class="ptbl"><thead><tr><th>Zeit</th><th>Position</th><th>Raus</th><th>Rein</th></tr></thead><tbody>`;
+    for (let i = 1; i < s.length; i++){
+      const ch = changes(hh, i);
+      if (!ch.length){ h += `<tr><td>${fmt(st[i])}</td><td colspan="3">keine Wechsel</td></tr>`; continue; }
+      ch.forEach(({pos, outs, ins}) => {
+        const n = Math.max(outs.length, ins.length);
+        for (let k = 0; k < n; k++){
+          const o = outs[k], nn = ins[k];
+          h += `<tr><td>${fmt(st[i])}</td><td>${pos.k === 'T' ? 'TW' : (hh === 'h2' ? pos.k : pos.n)}</td><td>${o ? esc(o.p.name) : '–'}</td><td>${nn ? esc(nn.p.name) : '–'}</td></tr>`;
+        }
+      });
+    }
+    h += `</tbody></table>`;
+  });
+  h += `</div>`;
+  h += `<div class="psec"><h2>Minuten je Spieler</h2><table class="ptbl"><thead><tr><th>Spieler</th><th>1. HZ</th><th>2. HZ</th><th>Gesamt</th></tr></thead><tbody>`;
+  pr.forEach(p => { const m = playerMinutes(p.id); h += `<tr><td>${esc(p.name)}</td><td>${fmin(m.h1)}</td><td>${fmin(m.h2)}</td><td>${fmin(m.tot)}</td></tr>`; });
+  h += `</tbody></table></div>`;
+  return h;
+}
+
+/* ---------- Rendern ---------- */
+function render(){
+  const sel = $('#gameSel');
+  sel.innerHTML = Object.values(S.games).map(g => `<option value="${g.id}" ${g.id === S.cur ? 'selected' : ''}>${esc(g.name)}</option>`).join('');
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  const sx = {h1: $('#gw_h1')?.scrollLeft || 0, h2: $('#gw_h2')?.scrollLeft || 0};
+  const views = {kader:vKader, zeit:vZeit, plan:vPlan, stat:vStat, wechsel:vWechsel};
+  $('#main').innerHTML = views[tab]();
+  ['h1','h2'].forEach(h => { const el = $('#gw_' + h); if (el) el.scrollLeft = sx[h]; });
+}
+
+/* ---------- Dialoge ---------- */
+function modal({title = '', text = '', input = null, buttons = [{label:'OK', v:true, cls:'pri'}], row2 = false, grid = false}){
+  return new Promise(res => {
+    const m = $('#mask');
+    m.innerHTML = `<div class="modal"><h3>${esc(title)}</h3>${text ? `<p>${text}</p>` : ''}${input !== null ? `<input id="mIn" value="${esc(input)}" enterkeyhint="done">` : ''}
+      <div class="mbtns ${row2 ? 'row2' : ''} ${grid ? 'grid' : ''}">${buttons.map((b, k) => `<button class="btn ${b.cls || ''}" data-k="${k}">${b.html || esc(b.label)}</button>`).join('')}</div></div>`;
+    m.classList.add('on');
+    const inp = $('#mIn');
+    const close = v => { m.classList.remove('on'); m.innerHTML = ''; m.onclick = null; res(v); };
+    if (inp){
+      setTimeout(() => { inp.focus(); inp.select(); }, 60);
+      inp.onkeydown = e => { if (e.key === 'Enter') close(inp.value); };
+    }
+    m.onclick = e => {
+      if (e.target === m) return close(null);
+      const k = e.target.closest('[data-k]')?.dataset.k;
+      if (k === undefined) return;
+      const b = buttons[+k];
+      close(inp && b.v === true ? inp.value : (b.v === undefined ? null : b.v));
+    };
+  });
+}
+const confirmM = (title, text, ok = 'OK', cls = 'pri') => modal({title, text, row2:true, buttons:[{label:'Abbrechen', v:false}, {label:ok, v:true, cls}]});
+const promptM = (title, val = '') => modal({title, input:val, row2:true, buttons:[{label:'Abbrechen', v:null}, {label:'OK', v:true, cls:'pri'}]});
+const alertM = (title, text) => modal({title, text, row2:true});
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('on'), 1800); }
+
+/* ---------- Aktionen ---------- */
+const actions = {
+  async toggle(d){ const g = G(); g.present[d.p] = !g.present[d.p]; save(); render(); },
+  allIn(){ S.roster.forEach(p => G().present[p.id] = true); save(); render(); },
+  allOut(){ S.roster.forEach(p => G().present[p.id] = false); save(); render(); },
+  async cell(d){
+    const r = row(d.h, d.p), i = +d.i;
+    if (d.h === 'h1'){ const c = CYCLE.h1; r[i] = c[(c.indexOf(r[i]) + 1) % c.length]; save(); render(); return; }
+    const pr = present(), cur = r[i];
+    const who = k => pr.find(p => p.id !== d.p && row('h2', p.id)[i] === k);
+    const opt = k => { const o = who(k); const lbl = k === 'T' ? 'TW' : k;
+      return {v:k, cls:(k === 'T' ? 'T' : 'F') + (cur === k ? ' cur' : ''), html:`${lbl}<small>${o ? esc(o.name) : 'frei'}</small>`}; };
+    const st = starts('h2'), name = S.roster.find(p => p.id === d.p).name;
+    const btns = [...FIELD2.map(opt), opt('T'),
+      {v:'', cls:cur === '' ? 'cur' : '', html:'Bank'},
+      {v:'__x', cls:'wide', label:'Abbrechen'}];
+    const v = await modal({title:`${name} · ${fmin(st[i])}–${fmin(st[i] + G().slices.h2[i])} min`, buttons:btns, grid:true});
+    if (v === null || v === '__x' || v === cur) return;
+    if (v !== ''){ const o = who(v); if (o){ row('h2', o.id)[i] = cur; toast(`Getauscht mit ${o.name}`); } }
+    r[i] = v; save(); render();
+  },
+  async col(d){
+    const h = d.h, i = +d.i, pr = present(), btns = [];
+    if (i > 0) btns.push({label:'Von vorheriger Zeitscheibe übernehmen', v:'prev', cls:'pri'});
+    if (h === 'h2' && i === 0) btns.push({label:'Ende 1. HZ übernehmen (A/V → Feld)', v:'fromH1', cls:'pri'});
+    btns.push({label:'Zeitscheibe leeren (alle Bank)', v:'clear', cls:'danger'}, {label:'Abbrechen', v:null});
+    const st = starts(h);
+    const v = await modal({title:`${HSHORT[h]} · ${fmin(st[i])}–${fmin(st[i] + G().slices[h][i])} min`, buttons:btns});
+    if (!v) return;
+    pr.forEach(p => {
+      const r = row(h, p.id);
+      if (v === 'prev') r[i] = r[i - 1];
+      if (v === 'clear') r[i] = '';
+      if (v === 'fromH1'){ const r1 = row('h1', p.id); const x = r1[r1.length - 1]; r[i] = x === 'A' || x === 'V' ? '?' : x; }
+    });
+    if (v === 'fromH1'){ let k = 0; pr.forEach(p => { const r = row(h, p.id); if (r[i] === '?') r[i] = FIELD2[k++] || ''; }); toast('Positionen vorbelegt – bitte prüfen'); }
+    save(); render();
+  },
+  async clearPlan(){
+    if (!await confirmM('Plan leeren?', 'Alle Zuordnungen dieses Spiels werden gelöscht.', 'Leeren', 'dangerfill')) return;
+    G().plan = {h1:{}, h2:{}}; save(); render();
+  },
+  preset(d){ setSlices(d.h, parseSlices(d.v)); render(); toast('Zeitscheiben übernommen'); },
+  async applySl(d){
+    const arr = parseSlices($('#sl_' + d.h).value);
+    if (!arr) return alertM('Eingabe ungültig', 'Beispiele: <code>5,5,5,5</code> · <code>6*3+2</code> · <code>2*10</code>');
+    const sum = Math.round(arr.reduce((a, b) => a + b, 0) * 100) / 100;
+    if (sum !== HALF) return alertM('Summe stimmt nicht', `Die Zeitscheiben ergeben ${fmin(sum)} Minuten, benötigt werden ${HALF}.`);
+    setSlices(d.h, arr); render(); toast('Zeitscheiben übernommen');
+  },
+  async gNew(){
+    const n = await promptM('Neues Spiel', `Spiel ${Object.keys(S.games).length + 1}`);
+    if (!n || !n.trim()) return;
+    const g = newGame(n.trim()); S.games[g.id] = g; S.cur = g.id; save(); tab = 'kader'; render();
+  },
+  async gCopy(){
+    const src = G();
+    const n = await promptM('Spiel kopieren', src.name + ' (Kopie)');
+    if (!n || !n.trim()) return;
+    const g = JSON.parse(JSON.stringify(src)); g.id = uid(); g.name = n.trim();
+    S.games[g.id] = g; S.cur = g.id; save(); render(); toast('Kopie erstellt');
+  },
+  async gRen(){
+    const n = await promptM('Spiel umbenennen', G().name);
+    if (!n || !n.trim()) return;
+    G().name = n.trim(); save(); render();
+  },
+  async gDel(){
+    if (!await confirmM('Spiel löschen?', `„${esc(G().name)}“ wird endgültig gelöscht.`, 'Löschen', 'dangerfill')) return;
+    delete S.games[S.cur];
+    if (!Object.keys(S.games).length){ const g = newGame('Spiel 1'); S.games[g.id] = g; }
+    S.cur = Object.keys(S.games)[0]; save(); render();
+  },
+  pAdd(){
+    const inp = $('#newName'), n = inp.value.trim();
+    if (!n) return;
+    const p = {id:uid(), name:n}; S.roster.push(p); G().present[p.id] = true;
+    save(); render(); $('#newName')?.focus();
+  },
+  async pRen(d){
+    const p = S.roster.find(x => x.id === d.p);
+    const n = await promptM('Spieler umbenennen', p.name);
+    if (!n || !n.trim()) return;
+    p.name = n.trim(); save(); render();
+  },
+  async pDel(d){
+    const p = S.roster.find(x => x.id === d.p);
+    if (!await confirmM('Spieler entfernen?', `${esc(p.name)} wird aus dem Kader und aus allen Plänen entfernt.`, 'Entfernen', 'dangerfill')) return;
+    S.roster = S.roster.filter(x => x.id !== d.p);
+    Object.values(S.games).forEach(g => { delete g.present[d.p]; delete g.plan.h1[d.p]; delete g.plan.h2[d.p]; });
+    save(); render();
+  },
+  sort(d){ statSort = d.v; render(); },
+  exp(){
+    const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `einsatzplaner-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  },
+  imp(){ $('#impFile').value = ''; $('#impFile').click(); },
+  pdf(){ $('#printArea').innerHTML = buildPrintHTML(); window.print(); },
+  async share(){
+    const text = subsText();
+    try { if (navigator.share){ await navigator.share({title:'Einsatzplan', text}); return; } } catch(e){ if (e.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(text); toast('In Zwischenablage kopiert'); }
+    catch(e){ alertM('Wechselplan', `<textarea style="width:100%;height:240px;font-size:13px">${esc(text)}</textarea>`); }
+  }
+};
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-tab]');
+  if (t){ tab = t.dataset.tab; render(); window.scrollTo(0, 0); return; }
+  const a = e.target.closest('[data-act]');
+  if (a && actions[a.dataset.act]) actions[a.dataset.act](a.dataset);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'newName') actions.pAdd();
+  if (e.key === 'Enter' && e.target.id && e.target.id.startsWith('sl_')) actions.applySl({h: e.target.id.slice(3)});
+});
+$('#gameSel').addEventListener('change', e => { S.cur = e.target.value; save(); render(); });
+$('#impFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!Array.isArray(data.roster) || !data.games || !Object.keys(data.games).length) throw new Error('Format');
+    if (!await confirmM('Backup importieren?', 'Die aktuellen Daten auf diesem Gerät werden ersetzt.', 'Importieren', 'dangerfill')) return;
+    S = data; if (!S.games[S.cur]) S.cur = Object.keys(S.games)[0];
+    save(); tab = 'kader'; render(); toast('Import erfolgreich');
+  } catch(err){ alertM('Import fehlgeschlagen', 'Die Datei ist kein gültiges Einsatzplaner-Backup.'); }
+});
+
+load();
+render();
+</script>
+</body>
+</html>
